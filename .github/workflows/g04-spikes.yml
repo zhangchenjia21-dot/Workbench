@@ -89,6 +89,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Install Tauri CLI
         run: npm install --no-audit --no-fund
+      - name: Generate disposable Windows icon
+        run: node make-icon.js
       - name: Build Tauri release + NSIS package
         run: npm run build:win
       - name: Run Tauri release lifecycle probe
