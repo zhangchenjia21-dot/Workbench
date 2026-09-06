@@ -2,7 +2,11 @@
 
 PWB-001 · TA-1A First Usable Core Vertical implementation.
 
-## 运行与打包
+## 一键启动
+
+Owner 直接双击仓库根目录的 **[启动 Workbench.cmd](启动%20Workbench.cmd)** 即可打开已打包的 Workbench，无需打开终端或寻找 exe。入口按自身位置查找打包目录，与当前工作目录无关；缺少打包应用时会显示中文提示。
+
+## 维护者运行与打包
 
 Windows x64，Node.js 24.11.0 或更高版本。
 

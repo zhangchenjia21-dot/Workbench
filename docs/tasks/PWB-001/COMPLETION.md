@@ -7,7 +7,7 @@
 - Formal Code Base SHA: `87d1aba19ab67ea8e87c592447d9f982eca79c04`
 - Task Packet Commit SHA: `920a6efd6cac1168d2b1f666e876b8fa74e86840`
 - Implementation Commit SHA before Completion Report: `eb23738adc0157905b9d21a51682d071b023d2fa`
-- Final Branch HEAD: returned in Builder chat after this report is committed; this report/evidence commit adds no production changes.
+- Final Branch HEAD: returned in the latest Builder chat after the current revision is committed. The Windows launcher revision below changes only the root launcher, line-ending rule and documentation; packaged application code is unchanged.
 - Recommended Next Action: `05 INDEPENDENT REVIEW`
 
 ## Implementation Summary
@@ -140,3 +140,36 @@ Review Target: exact final branch HEAD returned in Builder chat
 ```
 
 停在 `IMPLEMENTED / READY FOR INDEPENDENT REVIEW`。未合并 main；未宣告 Product PASS、TA-1A PASS 或 READY FOR OWNER UAT。
+
+## 普通修订｜Windows 一键启动入口
+
+Revision Base: `0eb31cf72c3f2db1674edf664c8ba1011f91cdb8`。
+
+用户追加要求在同一 PWB-001 / TA-1A Task Branch 提供明显的一键启动入口，不新拆 Task。
+
+### 修改
+
+- 仓库根目录新增 `启动 Workbench.cmd`，Owner 双击即可启动当前项目的 packaged `out/win-unpacked/Workbench.exe`。
+- 使用 `%~dp0` 相对脚本本身定位，完整引用含空格/中文的路径，不依赖当前工作目录；成功启动后脚本退出。
+- 缺少 exe 时显示中文预期路径、完整打包目录要求和维护者提示，pause 保留提示，返回 exit 1；启动命令失败也显示提示。
+- `.gitattributes` 固定 cmd 的 CRLF，脚本 UTF-8 无 BOM 并先切换 UTF-8 code page。
+- README 将 Owner 一键入口与维护者 npm 构建步骤分开。
+- 未改 src、SQLite schema、TA-1A 业务语义；未加入 installer、auto-update 或 startup-at-login。
+
+### 验证结果
+
+| 验证 | 结果及证据边界 |
+|---|---|
+| 缺包分支 | PASS：将相同 cmd 复制到没有 packaged app 的独立临时目录执行；显示中文缺包提示与预期路径，exit 1。没有移动真实应用目录 |
+| Windows Shell 启动 | PASS：从不同工作目录（TEMP）以 Windows Shell 打开根目录入口；观察到进程 `D:/AI/Projects/Workbench/out/win-unpacked/Workbench.exe`、主窗口标题 `Workbench`、非零窗口句柄 |
+| 真实双击 | PASS — Owner-confirmed：Builder 的 Computer Use 在初始化时失败；Owner 按请求实际双击根目录入口，并明确回复 Today 页面“出现了”。这项证据来自 Owner 回答，不冒称 Builder 鼠标自动化 |
+| packaged 二进制 | 未改变；Workbench.exe SHA-256 `258131fa13f34f84b8d0dea9a2e35d8d5e2dc20fd133449763496e5912eefce2`；app.asar SHA-256 `d686f2292676702e11f536c9721c5e18067473996c501ce85634d078cb66da72` |
+| 验证范围 | 启动脚本专项验证与 git diff check；业务/数据库代码未改，沿用前述已通过的测试和 Windows packaged 证据 |
+
+### 05 复审回包
+
+Review Target 为本次修订 push 后聊天返回的 exact HEAD。重点复核根目录启动入口、路径引用、缺包反馈和 scope integrity。
+
+任务列表未返回 05，ChatGPT 任务来源返回 unavailable；已向 Owner 请求 05 链接/ID。取得可路由目标后发送 exact HEAD，在此之前不声称已送达 05。
+
+本修订继续停在 `IMPLEMENTED / READY FOR INDEPENDENT REVIEW`。Owner 对一键启动的确认不等于完整 Product UAT 或 TA-1A PASS。
