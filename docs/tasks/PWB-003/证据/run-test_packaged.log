@@ -1,0 +1,178 @@
+
+> personal-workbench@0.1.0 test:packaged
+> node scripts/打包验证.mjs
+
+(node:40360) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40360) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+{
+  "asarSha256": "a525686fe1b35af77840c31af5bd7b8d08455e2f270a682443e1d0e82b384f74",
+  "platform": "win32",
+  "node": "v24.11.0",
+  "head": "00a54f587159c9ef18d3444941f0fd67ff3584cf",
+  "executable": "D:\\AI\\Projects\\Workbench\\out\\win-unpacked\\Workbench.exe",
+  "sha256": "5b79a0b697100e336a0f5c2b767bd8f5d25f86e0a4fd7f644ed3136ec3f13205",
+  "userData": "C:\\Users\\MRVHREVO\\AppData\\Local\\Temp\\pwb-packaged-rRIEZ3",
+  "checks": [
+    "AC-01 packaged Today without dev server",
+    "AC-03/04 normal UI item/vector create and overlap rejection",
+    "AC-02/05/06/13 UI lifecycle, rename link, Today projection, source edit and acknowledgement",
+    "AC-08/09 packaged backup, invalid restore rejection, valid restore; native file pickers stubbed only",
+    "UAT-AC-01/02 title-first timed cells; day-only GUI create/list/edit; no persistent day list on Plan",
+    "UAT-AC-02/03/04 single delete, multi-item edit chooser and exact same-day selected deletion; unselected/other-day/Vector preserved",
+    "UAT-AC-03 clear cancel unchanged; confirm only clicked date; right-click create date context and explicit edit-date movement",
+    "UAT-AC-05/06 distinct read-only Today Vector derived from Plan; Scheduled Item acknowledgement unchanged",
+    "AC-11 real Tray click event shared handler, close-hide, existing-window focus, explicit Exit process code 0",
+    "AC-07 packaged restart preserves restored state and same-date acknowledgements",
+    "PWB-002 AC-02..07 normal UI daily/weekly; moved original identity; single delete; whole-series exceptions cancel unchanged / confirm clears",
+    "PWB-002 AC-08..13/17 normal UI information CRUD, future filtering, Unscheduled exclusion, Week navigation/edit reflected Month/Today, moved acknowledgement isolation",
+    "PWB-002 AC-16/18 packaged full-V0 snapshot and validated restore preserve complete identities/links/exceptions/ack; native backup pickers stubbed only",
+    "PWB-003 H-AC-02/06/07/08 6 same-session normal GUI create/ack/single-delete/whole-delete and selected item delete; Month/Week/Today agree; exact canonical/ack baseline each round",
+    "PWB-003 H-AC-09 6 close-hide/process-alive/real Tray click or double-click handler/restore-focus cycles, same window id and count=1; followed by existing real Exit code 0 and restart",
+    "PWB-002 AC-13/16/18 full-V0 restart preserves moved occurrence acknowledgement and complete canonical graph"
+  ],
+  "runtime": {
+    "packaged": true,
+    "versions": {
+      "node": "24.11.1",
+      "acorn": "8.15.0",
+      "ada": "3.3.0",
+      "amaro": "1.1.4",
+      "ares": "1.34.5",
+      "brotli": "1.0.9",
+      "cjs_module_lexer": "2.1.0",
+      "cldr": "47.0",
+      "icu": "77.1",
+      "llhttp": "9.3.0",
+      "modules": "143",
+      "napi": "10",
+      "nbytes": "0.1.1",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.66.0",
+      "openssl": "0.0.0",
+      "simdjson": "4.0.7",
+      "simdutf": "7.7.0",
+      "sqlite": "3.50.4",
+      "tz": "2025b",
+      "undici": "7.16.0",
+      "unicode": "16.0",
+      "uv": "1.51.0",
+      "uvwasi": "0.0.23",
+      "v8": "14.4.258.16-electron.0",
+      "zlib": "1.3.1",
+      "zstd": "1.5.8",
+      "electron": "40.0.0",
+      "chrome": "144.0.7559.60"
+    },
+    "dataPath": "C:\\Users\\MRVHREVO\\AppData\\Local\\Temp\\pwb-packaged-rRIEZ3",
+    "tray": true
+  },
+  "hardening": {
+    "sessionIterations": 6,
+    "guiMutations": 36,
+    "cycles": [
+      {
+        "iteration": 1,
+        "hidden": {
+          "count": 1,
+          "id": 1,
+          "visible": false,
+          "destroyed": false,
+          "tray": true
+        },
+        "restored": {
+          "count": 1,
+          "id": 1,
+          "visible": true,
+          "focused": true
+        }
+      },
+      {
+        "iteration": 2,
+        "hidden": {
+          "count": 1,
+          "id": 1,
+          "visible": false,
+          "destroyed": false,
+          "tray": true
+        },
+        "restored": {
+          "count": 1,
+          "id": 1,
+          "visible": true,
+          "focused": true
+        }
+      },
+      {
+        "iteration": 3,
+        "hidden": {
+          "count": 1,
+          "id": 1,
+          "visible": false,
+          "destroyed": false,
+          "tray": true
+        },
+        "restored": {
+          "count": 1,
+          "id": 1,
+          "visible": true,
+          "focused": true
+        }
+      },
+      {
+        "iteration": 4,
+        "hidden": {
+          "count": 1,
+          "id": 1,
+          "visible": false,
+          "destroyed": false,
+          "tray": true
+        },
+        "restored": {
+          "count": 1,
+          "id": 1,
+          "visible": true,
+          "focused": true
+        }
+      },
+      {
+        "iteration": 5,
+        "hidden": {
+          "count": 1,
+          "id": 1,
+          "visible": false,
+          "destroyed": false,
+          "tray": true
+        },
+        "restored": {
+          "count": 1,
+          "id": 1,
+          "visible": true,
+          "focused": true
+        }
+      },
+      {
+        "iteration": 6,
+        "hidden": {
+          "count": 1,
+          "id": 1,
+          "visible": false,
+          "destroyed": false,
+          "tray": true
+        },
+        "restored": {
+          "count": 1,
+          "id": 1,
+          "visible": true,
+          "focused": true
+        }
+      }
+    ],
+    "finalGraph": "deepEqual complete V0 baseline",
+    "finalAcknowledgements": "exact baseline rows",
+    "integrity": "ok",
+    "pageErrors": [],
+    "stderr": []
+  },
+  "result": "PASS"
+}

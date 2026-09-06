@@ -1,0 +1,27 @@
+
+> personal-workbench@0.1.0 test:integration
+> tsx --test 测试/持久化测试.ts
+
+{"audit":"A-01","residualAfterDelete":0,"reeditAcknowledged":false,"publicCommandAccepted":true}
+{"audit":"A-02..07","rounds":5,"transitions":115,"final":"baseline canonical graph and zero ack rows","integrity":"ok"}
+(node:42428) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ PWB-003 A-01 删除 occurrence 后重启/恢复/公开重编辑不复活旧确认 (198.2936ms)
+✔ PWB-003 A-01 旧快照 tombstone 的历史确认在重编辑时被精确清除且失败原子回滚 (148.4856ms)
+✔ PWB-003 A-02..07 五轮独立期望模型，每轮 23 状态操作及三范围投影 (1813.345ms)
+✔ PWB-003 A-05 完整九表未提交进程中断后 graph 与确认全部回滚 (249.105ms)
+✔ restart、独立备份、无效恢复拒绝、staged restore 与安全备份 (207.6492ms)
+✔ 真实进程中断未提交写入后重开无部分事实 (170.8629ms)
+✔ 旧版 fixture 按序升级，升级前快照保留旧版；失败 DDL/version/data 全部回滚 (230.3743ms)
+✔ 恢复后 reopen 失败使用安全快照补偿，补偿失败发出致命错误 (216.7604ms)
+✔ 既有 Vector 确认只读忽略；删除与日程确认在重启/快照恢复后保持 (183.2637ms)
+✔ PWB-002 真实 TA-1A v2 数据升级、启动失败回滚、旧备份 staging 升级 (240.8508ms)
+✔ PWB-002 完整 V0 graph 独立快照、恢复、移动确认重启与无效例外拒绝 (260.1781ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4556.8566

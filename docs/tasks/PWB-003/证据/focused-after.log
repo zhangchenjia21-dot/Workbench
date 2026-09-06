@@ -1,0 +1,16 @@
+{"audit":"A-01","residualAfterDelete":0,"reeditAcknowledged":false,"publicCommandAccepted":true}
+{"audit":"A-02..07","rounds":5,"transitions":115,"final":"baseline canonical graph and zero ack rows","integrity":"ok"}
+(node:13344) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ PWB-003 A-01 删除 occurrence 后重启/恢复/公开重编辑不复活旧确认 (217.301ms)
+✔ PWB-003 A-01 旧快照 tombstone 的历史确认在重编辑时被精确清除且失败原子回滚 (163.6136ms)
+✔ PWB-003 A-02..07 五轮独立期望模型，每轮 23 状态操作及三范围投影 (1782.3305ms)
+✔ PWB-003 A-05 完整九表未提交进程中断后 graph 与确认全部回滚 (239.0289ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2864.4663

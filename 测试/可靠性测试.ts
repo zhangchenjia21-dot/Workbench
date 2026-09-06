@@ -88,7 +88,10 @@ test("PWB-003 A-01 删除 occurrence 后重启/恢复/公开重编辑不复活�
     assert.ok(!app.view(date).today.some((o) => o.id === `${id}@${key}`));
     // 现有公开命令接受此 key；GUI 没有复活按钮，不把 API 路径冒充鼠标路径。
     app.saveException(id, key, { ...itemDraft, title: "公开命令重编辑" });
-    const revived = app.view(date).today.find((o) => o.id === `${id}@${key}`)!;
+    const revived = app
+      .view(date)
+      .today.find((o) => o.kind === "occurrence" && o.id === `${id}@${key}`)!;
+    assert.ok(revived.kind === "occurrence");
     console.log(
       JSON.stringify({
         audit: "A-01",
@@ -132,12 +135,15 @@ test("PWB-003 A-01 旧快照 tombstone 的历史确认在重编辑时被精确�
     assert.deepEqual(app.view(date), before);
     assert.equal(rows(path).length, 1);
     app.saveException(id, key, itemDraft);
-    assert.equal(app.view(date).today[0].acknowledged, false);
+    assert.equal(
+      app.view(date).today.find((o) => o.kind === "occurrence")!.acknowledged,
+      false,
+    );
     assert.equal(rows(path).length, 0);
     app.acknowledge(date, source, true);
     app.saveException(id, key, { ...itemDraft, title: "普通编辑" });
     assert.equal(
-      app.view(date).today[0].acknowledged,
+      app.view(date).today.find((o) => o.kind === "occurrence")!.acknowledged,
       true,
       "未删除的同身份普通编辑保持既有语义",
     );
@@ -147,7 +153,7 @@ test("PWB-003 A-01 旧快照 tombstone 的历史确认在重编辑时被精确�
   }
 });
 
-test("PWB-003 A-02..07 五轮独立期望模型，每轮 22 状态操作及三范围投影", () => {
+test("PWB-003 A-02..07 五轮独立期望模型，每轮 23 状态操作及三范围投影", () => {
   const dir = mkdtempSync(join(tmpdir(), "pwb-sequence-")),
     path = join(dir, "live.sqlite");
   let app = openWorkbench(path),
@@ -184,19 +190,15 @@ test("PWB-003 A-02..07 五轮独立期望模型，每轮 22 状态操作及三�
             originalKey: key,
             deleted: mode === "deleted",
             ...(mode === "deleted"
-              ? {
-                  title: null,
-                  date: null,
-                  startTime: null,
-                  endTime: null,
-                  trackId: null,
-                }
+              ? {}
               : {
-                  title: "移动",
-                  date: next,
-                  startTime: "15:00",
-                  endTime: "16:00",
-                  trackId,
+                  value: {
+                    title: "移动",
+                    date: next,
+                    startTime: "15:00",
+                    endTime: "16:00",
+                    trackId,
+                  },
                 }),
           });
         const expected = [

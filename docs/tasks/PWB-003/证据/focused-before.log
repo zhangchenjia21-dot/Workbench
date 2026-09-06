@@ -17,9 +17,9 @@
 test at 测试\可靠性测试.ts:2:2052
 ✖ PWB-003 A-01 删除 occurrence 后重启/恢复/公开重编辑不复活旧确认 (188.1093ms)
   AssertionError [ERR_ASSERTION]: 删除边界之前的确认不能重新生效
-  
+
   true !== false
-  
+
       at TestContext.<anonymous> (D:\AI\Projects\Workbench\测试\可靠性测试.ts:45:12)
       at Test.runInAsyncScope (node:async_hooks:214:14)
       at Test.run (node:internal/test_runner/test:1106:25)
@@ -36,9 +36,9 @@ test at 测试\可靠性测试.ts:2:2052
 test at 测试\可靠性测试.ts:2:4174
 ✖ PWB-003 A-01 旧快照 tombstone 的历史确认在重编辑时被精确清除且失败原子回滚 (140.4821ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   true !== false
-  
+
       at TestContext.<anonymous> (D:\AI\Projects\Workbench\测试\可靠性测试.ts:63:12)
       at Test.runInAsyncScope (node:async_hooks:214:14)
       at Test.run (node:internal/test_runner/test:1106:25)

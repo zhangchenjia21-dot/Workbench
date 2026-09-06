@@ -1,5 +1,6 @@
 /* global window */
 import { _electron as electron } from "playwright";
+import { verifyReliability } from "./可靠性验证.mjs";
 import { verifyV0 } from "./完整V0验证.mjs";
 import { verifyCorrection } from "./日程纠偏验证.mjs";
 import assert from "node:assert/strict";
@@ -235,6 +236,7 @@ try {
     userData,
     proof.checks,
   );
+  await verifyReliability(page, app, date, output, userData, proof);
   await quit();
   page = await launch();
   assert.deepEqual(await page.evaluate(() => window.workbench.view()), fullV0);
