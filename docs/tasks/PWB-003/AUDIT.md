@@ -1,10 +1,10 @@
 # PWB-003｜Reliability Audit
 
-Status: AUDIT COMPLETE / ONE DEMONSTRATED FINDING FIXED; CI PENDING
+Status: AUDIT COMPLETE / ONE DEMONSTRATED FINDING FIXED
 
 起点：`6046f5d39b92172a80970648843b88f9f71c6c36`；Formal Base：`d990ef0f1807a2a0cacd91ba9447ebef5be692b8`。开始时工作区干净。Authority / Read First 已按 TASK 顺序读取并核对 manifest blob；未改变 frozen 文档。
 
-先记录审计问题，执行复现后填写结果；PENDING 不是 finding，也不授权生产修改。
+审计问题先于生产修复记录；下表为完成验证后的观察结果。
 
 | ID | Path / State Transition | Expected invariant | Reproduction / test | Observed result | Finding | Impact | Fix required / Reason | Regression added |
 |---|---|---|---|---|---|---|---|---|
@@ -35,7 +35,7 @@ Month/Week 来自同一 snapshot 与 `expandOccurrences`；Today 来源同一 ca
 - Finding：YES。Impact：旧视觉状态穿过删除边界重新附着于重新编辑的同原键。不是附着错误 ID，也不是数据丢失。正常 GUI 无复活按钮；复现使用已暴露、校验通过的公开命令，不声称鼠标路径已出现该缺陷。
 - Fix required：YES。仅在保存 tombstone 或编辑既有 tombstone 时，按完整 `occurrence:seriesId@originalKey` 删除该来源所有日期确认；与例外 upsert 同事务。后者兼容旧快照残留。普通未删除编辑保留确认规则。不扫全库、不变 schema、不加恢复功能。
 - Regression added：删除/重启/恢复/公开重编辑；无关 series、同 series 其它 occurrence、single item 确认隔离；旧快照历史残留；无效 Track 编辑回滚；普通编辑保留确认。
-- Before：2 tests / 0 passed / 2 failed。After：focused 4/4 passed，删除后 residual=0、重编辑 acknowledged=false；115 次序列及九表 crash 通过。Decision：FIXED（完整 regression 与 packaged 已通过，CI 待执行）。
+- Before：2 tests / 0 passed / 2 failed。After：focused 4/4 passed，删除后 residual=0、重编辑 acknowledged=false；115 次序列及九表 crash 通过。Decision：FIXED（完整 regression、packaged 与干净 Windows CI 均已通过）。
 
 ## Evidence / limitations
 
@@ -46,3 +46,5 @@ Month/Week 来自同一 snapshot 与 `expandOccurrences`；Today 来源同一 ca
 - packaged 使用真实 Windows EXE、Playwright GUI 和真实 Tray 对象事件处理函数；原生文件选择/确认对话框沿用既有 stub。托盘 click/double-click 为事件注入，不声称物理鼠标点系统通知区。所有测试数据隔离在临时目录。
 - 115 次状态序列与 6 轮 GUI 为有限重复使用证据；未做长时间性能/内存基准或断电测试。九表 crash 为测试子进程 SIGKILL，不等同硬件掉电证明。
 - 仅 A-01 为 YES；其它受测风险面无新增 finding。不得由工程验证推导 TA-2 PASS、TA-3 readiness 或 Product PASS。
+
+Windows CI：run `34034047262` / job `101488752973`，head `3b5cc29442e224e1f9d33e0cd3683e14684cb386` 全部步骤 success；EXE 与 app.asar 指纹等于本机。见 `证据/windows-ci.json`。
