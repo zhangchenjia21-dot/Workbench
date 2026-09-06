@@ -29,11 +29,6 @@ CREATE TABLE plan_item(
 );
 """
 
-MIGRATE_V1_TO_V2 = """
-ALTER TABLE track ADD COLUMN status TEXT NOT NULL DEFAULT 'active';
-UPDATE meta SET value='2' WHERE key='schema_version';
-"""
-
 
 def q1(conn: sqlite3.Connection, sql: str, args=()):
     return conn.execute(sql, args).fetchone()[0]
@@ -41,6 +36,10 @@ def q1(conn: sqlite3.Connection, sql: str, args=()):
 
 def integrity(conn: sqlite3.Connection) -> str:
     return q1(conn, "PRAGMA integrity_check")
+
+
+def columns(conn: sqlite3.Connection, table: str) -> list[str]:
+    return [row[1] for row in conn.execute(f"PRAGMA table_info({table})")]
 
 
 def create_v1(db: Path) -> None:
@@ -85,6 +84,15 @@ def online_backup(src: Path, dst: Path) -> None:
         s.close()
 
 
+def validate_db(path: Path) -> None:
+    conn = sqlite3.connect(path)
+    try:
+        assert integrity(conn) == "ok"
+        assert q1(conn, "SELECT value FROM meta WHERE key='schema_version'") in {"1", "2"}
+    finally:
+        conn.close()
+
+
 def migrate_copy(src: Path, dst: Path) -> None:
     shutil.copy2(src, dst)
     conn = sqlite3.connect(dst)
@@ -92,13 +100,39 @@ def migrate_copy(src: Path, dst: Path) -> None:
         assert q1(conn, "SELECT value FROM meta WHERE key='schema_version'") == "1"
         conn.execute("BEGIN IMMEDIATE")
         try:
-            conn.executescript(MIGRATE_V1_TO_V2)
+            conn.execute("ALTER TABLE track ADD COLUMN status TEXT NOT NULL DEFAULT 'active'")
+            conn.execute("UPDATE meta SET value='2' WHERE key='schema_version'")
             conn.commit()
         except Exception:
             conn.rollback()
             raise
         assert q1(conn, "SELECT value FROM meta WHERE key='schema_version'") == "2"
+        assert "status" in columns(conn, "track")
         assert q1(conn, "SELECT status FROM track WHERE id='trk-cpa'") == "active"
+        assert integrity(conn) == "ok"
+    finally:
+        conn.close()
+
+
+def failed_migration_rolls_back(src: Path, dst: Path) -> None:
+    shutil.copy2(src, dst)
+    conn = sqlite3.connect(dst)
+    try:
+        assert q1(conn, "SELECT value FROM meta WHERE key='schema_version'") == "1"
+        failed = False
+        conn.execute("BEGIN IMMEDIATE")
+        try:
+            conn.execute("ALTER TABLE track ADD COLUMN status TEXT NOT NULL DEFAULT 'active'")
+            conn.execute("UPDATE meta SET value='2' WHERE key='schema_version'")
+            # Deliberate failure after schema/data changes but before COMMIT.
+            conn.execute("INSERT INTO definitely_missing_table(x) VALUES (1)")
+            conn.commit()
+        except sqlite3.DatabaseError:
+            failed = True
+            conn.rollback()
+        assert failed
+        assert q1(conn, "SELECT value FROM meta WHERE key='schema_version'") == "1"
+        assert "status" not in columns(conn, "track")
         assert integrity(conn) == "ok"
     finally:
         conn.close()
@@ -118,6 +152,7 @@ def main() -> int:
         live = root / "workbench.db"
         backup = root / "backup.db"
         migrated = root / "migrated.db"
+        failed_migration = root / "failed-migration.db"
 
         create_v1(live)
         out["checks"]["create_v1_integrity"] = True
@@ -132,7 +167,7 @@ def main() -> int:
             conn.close()
         out["checks"]["uncommitted_crash_rolled_back"] = True
 
-        # Committed state survives restart.
+        # Committed state survives close/reopen.
         conn = sqlite3.connect(live)
         conn.execute("UPDATE track SET name='CPA 2027' WHERE id='trk-cpa'")
         conn.commit()
@@ -144,28 +179,50 @@ def main() -> int:
             conn.close()
         out["checks"]["committed_restart_persists"] = True
 
+        # Consistent standalone backup from the live database.
         online_backup(live, backup)
+        validate_db(backup)
         out["checks"]["online_backup_integrity"] = True
 
-        # Destructive live mutation then restore from validated standalone backup.
+        # Destructive change to canonical DB.
         conn = sqlite3.connect(live)
         conn.execute("DELETE FROM plan_item")
         conn.execute("DELETE FROM track")
         conn.commit()
         conn.close()
-        restored = root / "restored.db"
-        shutil.copy2(backup, restored)
-        conn = sqlite3.connect(restored)
+
+        # Pre-restore safety snapshot preserves the current (destructively changed) state.
+        safety = root / "pre-restore-safety.db"
+        online_backup(live, safety)
+        conn = sqlite3.connect(safety)
+        try:
+            assert q1(conn, "SELECT COUNT(*) FROM track") == 0
+            assert integrity(conn) == "ok"
+        finally:
+            conn.close()
+        out["checks"]["pre_restore_safety_snapshot"] = True
+
+        # Validate backup, stage it, then replace the CLOSED canonical DB on Windows.
+        validate_db(backup)
+        staging = root / "restore-staging.db"
+        shutil.copy2(backup, staging)
+        validate_db(staging)
+        os.replace(staging, live)
+        conn = sqlite3.connect(live)
         try:
             assert integrity(conn) == "ok"
             assert q1(conn, "SELECT COUNT(*) FROM track") == 1
             assert q1(conn, "SELECT COUNT(*) FROM plan_item") == 1
+            assert q1(conn, "SELECT name FROM track WHERE id='trk-cpa'") == "CPA 2027"
         finally:
             conn.close()
-        out["checks"]["backup_destructive_change_restore"] = True
+        out["checks"]["canonical_db_replaced_from_validated_backup"] = True
 
         migrate_copy(backup, migrated)
-        out["checks"]["v1_fixture_migrates_to_v2"] = True
+        out["checks"]["v1_fixture_migrates_to_v2_transactionally"] = True
+
+        failed_migration_rolls_back(backup, failed_migration)
+        out["checks"]["failed_migration_rolls_back_schema_and_version"] = True
 
         # A deliberately invalid file is rejected before restore.
         invalid = root / "invalid.db"
