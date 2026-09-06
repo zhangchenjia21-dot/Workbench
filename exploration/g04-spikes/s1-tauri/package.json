@@ -1,0 +1,12 @@
+{
+  "name": "g04-tauri-tray-spike",
+  "version": "0.0.1",
+  "private": true,
+  "description": "EXPLORATION / NOT CANONICAL ARCHITECTURE / NOT PRODUCTION COMMITMENT",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  },
+  "scripts": {
+    "build:win": "tauri build --bundles nsis"
+  }
+}
