@@ -1,0 +1,33 @@
+name: PWB-001 Windows validation
+on:
+  push:
+    branches: [task/PWB-001-ta1a-first-usable-core]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.11.0
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:integration
+      - run: npm run build
+      - run: npm run package:win
+      - run: npm run test:packaged
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: PWB-001-windows-${{ github.sha }}
+          path: |
+            evidence/
+            out/win-unpacked/
+          retention-days: 14

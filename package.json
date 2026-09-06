@@ -1,0 +1,55 @@
+{
+  "name": "personal-workbench",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PWB-001 TA-1A Personal Workbench",
+  "author": "Workbench",
+  "main": "dist/main.cjs",
+  "scripts": {
+    "lint": "eslint . && node scripts/架构检查.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test 测试/领域测试.ts",
+    "test:integration": "tsx --test 测试/持久化测试.ts",
+    "build": "node scripts/构建应用.mjs",
+    "start": "electron .",
+    "package:win": "npm run build && electron-builder --win dir --x64",
+    "test:packaged": "node scripts/打包验证.mjs"
+  },
+  "engines": {
+    "node": ">=24.11.0"
+  },
+  "dependencies": {
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.1",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "electron": "40.0.0",
+    "electron-builder": "26.0.12",
+    "esbuild": "0.27.0",
+    "eslint": "9.39.1",
+    "playwright": "1.56.1",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.46.4"
+  },
+  "build": {
+    "appId": "cn.workbench.personal",
+    "productName": "Workbench",
+    "directories": {
+      "output": "out"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": "dir",
+      "signAndEditExecutable": false
+    }
+  }
+}

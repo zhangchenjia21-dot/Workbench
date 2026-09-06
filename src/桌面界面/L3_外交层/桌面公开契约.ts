@@ -1,0 +1,21 @@
+import type {
+  TrackDraft,
+  ItemDraft,
+  VectorDraft,
+  StateView,
+} from "../../个人状态/L3_外交层/状态公开接口";
+/** preload 白名单 API；返回值为 IPC 副本，业务写入只由主进程确认，不暴露 SQL 或任意路径访问。 */
+export interface DesktopAPI {
+  view(): Promise<StateView>;
+  saveTrack(id: string | null, draft: TrackDraft): Promise<void>;
+  saveItem(id: string | null, draft: ItemDraft): Promise<void>;
+  saveVector(id: string | null, draft: VectorDraft): Promise<void>;
+  acknowledge(date: string, source: string, flag: boolean): Promise<void>;
+  backup(): Promise<string | null>;
+  restore(): Promise<string | null>;
+}
+declare global {
+  interface Window {
+    workbench: DesktopAPI;
+  }
+}
