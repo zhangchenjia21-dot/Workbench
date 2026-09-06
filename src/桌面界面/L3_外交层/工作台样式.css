@@ -444,3 +444,49 @@ footer {
   overflow: hidden;
   clip-path: inset(50%);
 }
+
+.week-calendar .day {
+  min-height: 270px;
+  max-height: 520px;
+}
+.week-calendar .day span {
+  white-space: normal;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+.day small {
+  display: block;
+  font-size: 11px;
+}
+.recurring-title {
+  border-left: 2px solid #7c3aed;
+  padding-left: 4px;
+}
+.series-management {
+  margin-top: 20px;
+}
+.series-management summary {
+  cursor: pointer;
+  padding: 12px;
+}
+.weekdays-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.weekdays-choice label,
+dialog .inline-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.weekdays-choice input,
+dialog .inline-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+.plan-information {
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+}

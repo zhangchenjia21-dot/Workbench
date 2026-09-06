@@ -1,6 +1,17 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type { DesktopAPI } from "../桌面界面/L3_外交层/桌面公开契约";
 const api: DesktopAPI = {
+  saveSeries: (id, draft, clear) =>
+    ipcRenderer.invoke("state:series", id, draft, clear),
+  saveException: (id, key, value) =>
+    ipcRenderer.invoke("state:exception", id, key, value),
+  deleteSeries: (id) => ipcRenderer.invoke("state:delete-series", id),
+  saveReminder: (id, draft) => ipcRenderer.invoke("state:reminder", id, draft),
+  saveMemo: (id, draft) => ipcRenderer.invoke("state:memo", id, draft),
+  saveUnscheduled: (id, draft) =>
+    ipcRenderer.invoke("state:unscheduled", id, draft),
+  deleteInformation: (kind, id) =>
+    ipcRenderer.invoke("state:delete-information", kind, id),
   view: () => ipcRenderer.invoke("state:view"),
   saveTrack: (id, draft) => ipcRenderer.invoke("state:track", id, draft),
   saveItem: (id, draft) => ipcRenderer.invoke("state:item", id, draft),

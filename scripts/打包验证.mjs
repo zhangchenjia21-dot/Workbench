@@ -1,4 +1,6 @@
+/* global window */
 import { _electron as electron } from "playwright";
+import { verifyV0 } from "./完整V0验证.mjs";
 import { verifyCorrection } from "./日程纠偏验证.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, writeFileSync, readFileSync } from "node:fs";
@@ -223,6 +225,25 @@ try {
   await quit();
   proof.checks.push(
     "AC-07 packaged restart preserves restored state and same-date acknowledgements",
+  );
+  page = await launch();
+  const fullV0 = await verifyV0(
+    page,
+    app,
+    date,
+    output,
+    userData,
+    proof.checks,
+  );
+  await quit();
+  page = await launch();
+  assert.deepEqual(await page.evaluate(() => window.workbench.view()), fullV0);
+  await page
+    .getByRole("heading", { name: "周视图已改阅读", exact: true })
+    .waitFor();
+  await quit();
+  proof.checks.push(
+    "PWB-002 AC-13/16/18 full-V0 restart preserves moved occurrence acknowledgement and complete canonical graph",
   );
   proof.result = "PASS";
 } catch (error) {

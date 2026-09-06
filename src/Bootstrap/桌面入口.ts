@@ -123,6 +123,19 @@ async function start(): Promise<void> {
         throw error;
       }
     });
+  handle("state:series", (id, draft, clear) =>
+    state.saveSeries(id, draft, clear),
+  );
+  handle("state:exception", (id, key, value) =>
+    state.saveException(id, key, value),
+  );
+  handle("state:delete-series", (id) => state.deleteSeries(id));
+  handle("state:reminder", (id, draft) => state.saveReminder(id, draft));
+  handle("state:memo", (id, draft) => state.saveMemo(id, draft));
+  handle("state:unscheduled", (id, draft) => state.saveUnscheduled(id, draft));
+  handle("state:delete-information", (kind, id) =>
+    state.deleteInformation(kind, id),
+  );
   handle("state:view", () => state.view());
   handle("state:track", (id, draft) => state.saveTrack(id, draft));
   handle("state:item", (id, draft) => state.saveItem(id, draft));

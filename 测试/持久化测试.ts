@@ -301,3 +301,147 @@ test("既有 Vector 确认只读忽略；删除与日程确认在重启/快照�
     rmSync(dir, { recursive: true });
   }
 });
+
+test("PWB-002 真实 TA-1A v2 数据升级、启动失败回滚、旧备份 staging 升级", () => {
+  const dir = mkdtempSync(join(tmpdir(), "pwb-v2-")),
+    path = join(dir, "old.sqlite");
+  try {
+    const db = connect(path);
+    db.exec(
+      `PRAGMA application_id=${APP_ID};${migrations[0]}${migrations[1]} PRAGMA user_version=2;`,
+    );
+    db.prepare("INSERT INTO tracks VALUES(?,?,?,?,?,?,?,?)").run(
+      "stable",
+      "CPA",
+      "goal",
+      "phase",
+      "state",
+      "direction",
+      "Active",
+      "2026-09-06T00:00:00Z",
+    );
+    db.prepare("INSERT INTO items VALUES(?,?,?,?,?,?)").run(
+      "item",
+      "原日程",
+      "2026-09-06",
+      "09:00",
+      "10:00",
+      "stable",
+    );
+    db.prepare("INSERT INTO vectors VALUES(?,?,?,?)").run(
+      "vector",
+      "方向",
+      "2026-09-01",
+      "2026-09-30",
+    );
+    db.prepare("INSERT INTO acknowledgements VALUES(?,?,?)").run(
+      "2026-09-06",
+      "item:item",
+      1,
+    );
+    db.close();
+    const step = migrations[2];
+    try {
+      migrations[2] = `${step} UPDATE tracks SET name='bad'; SELECT * FROM missing;`;
+      assert.throws(() => openWorkbench(path), /回滚/);
+    } finally {
+      migrations[2] = step;
+    }
+    const rolled = connect(path, true);
+    assert.equal(version(rolled), 2);
+    assert.equal(rolled.prepare("SELECT name FROM tracks").get()!.name, "CPA");
+    assert.equal(
+      rolled.prepare("SELECT name FROM sqlite_master WHERE name='series'").all()
+        .length,
+      0,
+    );
+    validateDatabase(rolled);
+    rolled.close();
+    const app = openWorkbench(path);
+    const v = app.view("2026-09-06");
+    assert.equal(v.items[0].trackId, "stable");
+    assert.equal(v.vectors[0].id, "vector");
+    assert.equal(v.today.find((s) => s.kind === "item")!.acknowledged, true);
+    app.close();
+    const safetyFiles = readdirSync(join(dir, "safety"));
+    assert.equal(safetyFiles.length, 2);
+    const old = join(dir, "safety", safetyFiles[0]);
+    const backup = connect(old, true);
+    assert.equal(version(backup), 2);
+    backup.close();
+    const target = openWorkbench(join(dir, "target.sqlite"));
+    target.restore(old);
+    assert.deepEqual(target.view("2026-09-06"), v);
+    target.close();
+  } finally {
+    rmSync(dir, { recursive: true });
+  }
+});
+test("PWB-002 完整 V0 graph 独立快照、恢复、移动确认重启与无效例外拒绝", () => {
+  const dir = mkdtempSync(join(tmpdir(), "pwb-v0-")),
+    path = join(dir, "live.sqlite"),
+    backup = join(dir, "backup.sqlite");
+  let app = openWorkbench(path);
+  try {
+    const date = "2026-09-06",
+      trackId = app.saveTrack(null, draft);
+    app.saveItem(null, {
+      title: "单次",
+      date,
+      startTime: "08:00",
+      endTime: "09:00",
+      trackId,
+    });
+    app.saveVector(null, { content: "方向", startDate: date, endDate: date });
+    const series = app.saveSeries(null, {
+      title: "循环",
+      startDate: date,
+      endDate: null,
+      startTime: "09:00",
+      endTime: "10:00",
+      pattern: "daily",
+      weekdays: [],
+      trackId,
+    });
+    app.saveException(series, "2026-09-07T09:00", {
+      title: "移入",
+      date,
+      startTime: "15:00",
+      endTime: "16:00",
+      trackId,
+    });
+    app.saveException(series, "2026-09-08T09:00", null);
+    app.acknowledge(date, `occurrence:${series}@2026-09-07T09:00`, true);
+    app.saveReminder(null, { content: "提醒", date, time: null });
+    app.saveMemo(null, { content: "备忘", date });
+    app.saveUnscheduled(null, { content: "近期", trackId });
+    const expected = app.view(date);
+    app.backup(backup);
+    const independent = openWorkbench(backup);
+    assert.deepEqual(independent.view(date), expected);
+    independent.close();
+    app.deleteSeries(series);
+    const before = app.view(date);
+    const safety = app.restore(backup);
+    assert.ok(existsSync(safety));
+    assert.deepEqual(app.view(date), expected);
+    app.close();
+    app = openWorkbench(path);
+    assert.deepEqual(app.view(date), expected);
+    const saved = openWorkbench(safety);
+    assert.deepEqual(saved.view(date), before);
+    saved.close();
+    const invalid = join(dir, "invalid.sqlite");
+    app.backup(invalid);
+    const db = connect(invalid);
+    db.prepare(
+      "UPDATE exceptions SET originalKey='2026-09-07T08:00' WHERE deleted=0",
+    ).run();
+    db.close();
+    assert.throws(() => app.restore(invalid), /occurrence/);
+    assert.deepEqual(app.view(date), expected);
+  } finally {
+    app.close();
+    rmSync(dir, { recursive: true });
+  }
+});

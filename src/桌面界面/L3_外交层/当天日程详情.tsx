@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import type { Item, StateView } from "../../个人状态/L3_外交层/状态公开接口";
+import { expandOccurrences } from "../../个人状态/L3_外交层/日历投影接口";
+import type {
+  Item,
+  StateView,
+  Occurrence,
+} from "../../个人状态/L3_外交层/状态公开接口";
 import "./桌面公开契约";
 
 /** 日期是此详情的固定上下文；所选 ID 只在本次打开期间存在，不能跨日期批量操作。 */
@@ -11,6 +16,7 @@ export function DayDetail({
   onChanged,
   onCreate,
   onEdit,
+  onOccurrence,
 }: {
   date: string;
   initialClear: boolean;
@@ -19,6 +25,7 @@ export function DayDetail({
   onChanged: () => Promise<void>;
   onCreate: () => void;
   onEdit: (item: Item) => void;
+  onOccurrence: (occurrence: Occurrence, action: "edit" | "delete") => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [selected, setSelected] = useState<string[]>([]);
@@ -28,6 +35,12 @@ export function DayDetail({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const items = state.items.filter((item) => item.date === date);
+  const occurrences = expandOccurrences(
+    state.series,
+    state.exceptions,
+    date,
+    date,
+  );
   const chosen = selected.filter((id) => items.some((item) => item.id === id));
   useEffect(() => {
     dialog.current!.showModal();
@@ -78,7 +91,10 @@ export function DayDetail({
               ? `清空 ${date} 的全部日程？`
               : `删除 ${date} 的 ${confirmation.ids.length} 条所选日程？`}
           </h3>
-          <p>仅删除这一天的单次日程，其他日期与 Current Vector 不受影响。</p>
+          <p>
+            仅删除这一天的单次日程，循环日程、其他日期与 Current Vector
+            不受影响。
+          </p>
           <footer>
             <button
               disabled={busy}
@@ -111,7 +127,14 @@ export function DayDetail({
               删除所选（{chosen.length}）
             </button>
           </div>
-          {items.length === 0 && <p className="empty">这一天还没有安排。</p>}
+          {items.length === 0 && occurrences.length === 0 && (
+            <p className="empty">这一天还没有安排。</p>
+          )}
+          {occurrences.length > 0 && (
+            <p className="muted">
+              多选与清空只作用于单次日程；循环日程请逐条选择操作范围。
+            </p>
+          )}
           <div className="day-items">
             {items.map((item) => (
               <article className="row" key={item.id}>
@@ -149,6 +172,33 @@ export function DayDetail({
                   <button
                     aria-label={`删除日程 ${item.title}`}
                     onClick={() => setConfirmation({ ids: [item.id] })}
+                  >
+                    删除
+                  </button>
+                </div>
+              </article>
+            ))}
+            {occurrences.map((o) => (
+              <article className="row" key={o.id}>
+                <div className="day-item-content">
+                  <h3>{o.title}</h3>
+                  <p>
+                    {o.startTime} — {o.endTime} · 循环
+                    {o.trackId
+                      ? ` · ${state.tracks.find((t) => t.id === o.trackId)?.name}`
+                      : ""}
+                  </p>
+                </div>
+                <div className="source-actions">
+                  <button
+                    aria-label={`编辑循环日程 ${o.title}`}
+                    onClick={() => onOccurrence(o, "edit")}
+                  >
+                    编辑
+                  </button>
+                  <button
+                    aria-label={`删除循环日程 ${o.title}`}
+                    onClick={() => onOccurrence(o, "delete")}
                   >
                     删除
                   </button>

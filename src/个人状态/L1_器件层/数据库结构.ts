@@ -1,5 +1,16 @@
 import { DatabaseSync } from "node:sqlite";
 import {
+  validateSeries,
+  validateOriginalKey,
+  validateReminder,
+  validateMemo,
+  validateUnscheduled,
+  textField,
+  type Series,
+  type Reminder,
+  type Memo,
+  type Unscheduled,
+  type OccurrenceException,
   validateTrack,
   validateItem,
   validateVector,
@@ -10,13 +21,18 @@ import {
 } from "../L0_公理层/状态契约";
 
 export const APP_ID = 0x50574231;
-export const VERSION = 2;
-// v1 包含真实 Track/Plan；v2 增加本任务必须的窄 acknowledgement，无未来字段。
+export const VERSION = 3;
+// 原 v1/v2 DDL 保持字节兼容；v3 只增加 Complete V0 的事实表，无预生成 occurrence。
 export const migrations = [
   `CREATE TABLE tracks (id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, goal TEXT NOT NULL, phase TEXT NOT NULL, realState TEXT NOT NULL, direction TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('Active','Completed','Archived')), updatedAt TEXT NOT NULL);
    CREATE TABLE items (id TEXT PRIMARY KEY NOT NULL, title TEXT NOT NULL, date TEXT NOT NULL, startTime TEXT NOT NULL, endTime TEXT NOT NULL, trackId TEXT REFERENCES tracks(id));
    CREATE TABLE vectors (id TEXT PRIMARY KEY NOT NULL, content TEXT NOT NULL, startDate TEXT NOT NULL, endDate TEXT NOT NULL);`,
   `CREATE TABLE acknowledgements (date TEXT NOT NULL, sourceId TEXT NOT NULL, acknowledged INTEGER NOT NULL CHECK(acknowledged IN (0,1)), PRIMARY KEY(date,sourceId));`,
+  `CREATE TABLE series (id TEXT PRIMARY KEY NOT NULL, title TEXT NOT NULL, startDate TEXT NOT NULL, endDate TEXT, startTime TEXT NOT NULL, endTime TEXT NOT NULL, pattern TEXT NOT NULL CHECK(pattern IN ('daily','weekly')), weekdays TEXT NOT NULL, trackId TEXT REFERENCES tracks(id));
+   CREATE TABLE exceptions (seriesId TEXT NOT NULL REFERENCES series(id) ON DELETE CASCADE, originalKey TEXT NOT NULL, deleted INTEGER NOT NULL CHECK(deleted IN (0,1)), title TEXT, date TEXT, startTime TEXT, endTime TEXT, trackId TEXT REFERENCES tracks(id), PRIMARY KEY(seriesId,originalKey), CHECK((deleted=1 AND title IS NULL AND date IS NULL AND startTime IS NULL AND endTime IS NULL AND trackId IS NULL) OR (deleted=0 AND title IS NOT NULL AND date IS NOT NULL AND startTime IS NOT NULL AND endTime IS NOT NULL)));
+   CREATE TABLE reminders (id TEXT PRIMARY KEY NOT NULL, content TEXT NOT NULL, date TEXT NOT NULL, time TEXT);
+   CREATE TABLE memos (id TEXT PRIMARY KEY NOT NULL, content TEXT NOT NULL, date TEXT NOT NULL);
+   CREATE TABLE unscheduled (id TEXT PRIMARY KEY NOT NULL, content TEXT NOT NULL, trackId TEXT REFERENCES tracks(id));`,
 ];
 export function version(db: DatabaseSync): number {
   return Number(db.prepare("PRAGMA user_version").get()!.user_version);
@@ -88,13 +104,76 @@ export function validateDatabase(db: DatabaseSync): void {
       .get()
   )
     throw new Error("Vector 日期重叠");
+  if (v >= 3) {
+    const series = readSeries(db);
+    for (const s of series) {
+      textField(s.id, "Series ID", true);
+      validateSeries(s);
+    }
+    for (const e of readExceptions(db)) {
+      validateOriginalKey(
+        series.find((s) => s.id === e.seriesId)!,
+        e.originalKey,
+      );
+      if (!e.deleted) validateItem(e.value);
+    }
+    for (const r of db.prepare("SELECT * FROM reminders").all()) {
+      textField(r.id, "Reminder ID", true);
+      validateReminder(r as unknown as Reminder);
+    }
+    for (const r of db.prepare("SELECT * FROM memos").all()) {
+      textField(r.id, "Memo ID", true);
+      validateMemo(r as unknown as Memo);
+    }
+    for (const r of db.prepare("SELECT * FROM unscheduled").all()) {
+      textField(r.id, "Unscheduled ID", true);
+      validateUnscheduled(r as unknown as Unscheduled);
+    }
+  }
   if (v >= 2)
     for (const r of db.prepare("SELECT * FROM acknowledgements").all()) {
       dateOnly(r.date);
       if (
         typeof r.sourceId !== "string" ||
-        !/^(item|vector):.+/.test(r.sourceId)
+        !(v >= 3 ? /^(item|vector|occurrence):.+/ : /^(item|vector):.+/).test(
+          r.sourceId,
+        )
       )
         throw new Error("确认身份无效");
     }
+}
+
+export function readSeries(db: DatabaseSync): Series[] {
+  return db
+    .prepare("SELECT * FROM series ORDER BY startDate,id")
+    .all()
+    .map((r) => ({
+      ...r,
+      weekdays: JSON.parse(String(r.weekdays)),
+    })) as unknown as Series[];
+}
+export function readExceptions(db: DatabaseSync): OccurrenceException[] {
+  return db
+    .prepare("SELECT * FROM exceptions ORDER BY seriesId,originalKey")
+    .all()
+    .map((r) =>
+      r.deleted
+        ? {
+            seriesId: String(r.seriesId),
+            originalKey: String(r.originalKey),
+            deleted: true,
+          }
+        : {
+            seriesId: String(r.seriesId),
+            originalKey: String(r.originalKey),
+            deleted: false,
+            value: {
+              title: String(r.title),
+              date: String(r.date),
+              startTime: String(r.startTime),
+              endTime: String(r.endTime),
+              trackId: r.trackId as string | null,
+            },
+          },
+    );
 }

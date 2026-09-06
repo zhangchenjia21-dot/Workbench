@@ -7,6 +7,13 @@ import type {
   TrackStatus,
 } from "../../个人状态/L3_外交层/状态公开接口";
 import "./桌面公开契约";
+import {
+  expandOccurrences,
+  addDays,
+  weekday,
+} from "../../个人状态/L3_外交层/日历投影接口";
+import { RecurrenceDialog, type RecurrenceEditor } from "./循环日程编辑";
+import { PlanInformation } from "./计划信息维护";
 import { DayDetail, DayMenu } from "./当天日程详情";
 type Page = "Today" | "Plan" | "Tracks";
 type Editor =
@@ -21,6 +28,8 @@ const statuses: Record<TrackStatus, string> = {
 
 /** 界面只保存选择与未提交表单；每次写入后重新读取 canonical state，绝不乐观复制业务事实。 */
 export function WorkbenchView() {
+  const [recurrence, setRecurrence] = useState<RecurrenceEditor>();
+  const [calendarMode, setCalendarMode] = useState<"month" | "week">("month");
   const [state, setState] = useState<StateView>();
   const [page, setPage] = useState<Page>("Today");
   const [month, setMonth] = useState("");
@@ -77,6 +86,32 @@ export function WorkbenchView() {
     const next = `${date.getFullYear().toString().padStart(4, "0")}-${(date.getMonth() + 1).toString().padStart(2, "0")}`;
     setMonth(next);
     setSelected(`${next}-01`);
+  }
+  const weekStart = selected ? addDays(selected, 1 - weekday(selected)) : "";
+  const weekDates = weekStart
+    ? Array.from({ length: 7 }, (_, i) => {
+        try {
+          return addDays(weekStart, i);
+        } catch {
+          return null;
+        }
+      })
+    : [];
+  const dates = calendarMode === "month" ? calendarDays(month) : weekDates;
+  const visibleDates = dates.filter((d): d is string => d !== null);
+  const occurrences =
+    state && visibleDates.length
+      ? expandOccurrences(
+          state.series,
+          state.exceptions,
+          visibleDates[0],
+          visibleDates[visibleDates.length - 1],
+        )
+      : [];
+  function moveWeek(delta: number) {
+    const date = addDays(selected, delta * 7);
+    setSelected(date);
+    setMonth(date.slice(0, 7));
   }
   return (
     <div className="shell">
@@ -174,13 +209,33 @@ export function WorkbenchView() {
                       添加今日日程
                     </button>
                   </div>
-                  {!state.today.some((s) => s.kind === "item") && (
-                    <p className="empty">今天没有安排日程。</p>
-                  )}
+                  {!state.today.some(
+                    (s) => s.kind === "item" || s.kind === "occurrence",
+                  ) && <p className="empty">今天没有安排日程。</p>}
                   {state.today
-                    .filter((s) => s.kind === "item")
+                    .filter((s) => s.kind === "item" || s.kind === "occurrence")
                     .map((s) => sourceCard(s))}
                 </section>
+                {(["reminder", "memo"] as const).map((kind) => (
+                  <section key={kind} aria-label={`Today ${kind}`}>
+                    <h2>
+                      {kind === "reminder" ? "今日 Reminder" : "今日 Memo"}
+                    </h2>
+                    {state.today
+                      .filter((s) => s.kind === kind)
+                      .map((s) => (
+                        <article key={s.id}>
+                          <h3>{s.title}</h3>
+                          <p>{s.detail}</p>
+                        </article>
+                      ))}
+                    {!state.today.some((s) => s.kind === kind) && (
+                      <p className="muted">
+                        今天没有{kind === "reminder" ? "提醒" : "备忘"}。
+                      </p>
+                    )}
+                  </section>
+                ))}
               </>
             )}
             {page === "Tracks" && (
@@ -250,19 +305,62 @@ export function WorkbenchView() {
             {page === "Plan" && (
               <>
                 <div className="toolbar">
+                  <div role="group" aria-label="日历视图">
+                    <button
+                      aria-pressed={calendarMode === "month"}
+                      onClick={() => setCalendarMode("month")}
+                    >
+                      月视图
+                    </button>
+                    <button
+                      aria-pressed={calendarMode === "week"}
+                      onClick={() => setCalendarMode("week")}
+                    >
+                      周视图
+                    </button>
+                  </div>
+                  <button
+                    onClick={() =>
+                      setRecurrence({ date: selected, action: "edit" })
+                    }
+                  >
+                    新建循环日程
+                  </button>
+                </div>
+                <div className="toolbar">
                   <div className="month-nav">
                     <button
-                      aria-label="上个月"
-                      disabled={month === "0001-01"}
-                      onClick={() => moveMonth(-1)}
+                      aria-label={
+                        calendarMode === "month" ? "上个月" : "上一周"
+                      }
+                      disabled={
+                        calendarMode === "month"
+                          ? month === "0001-01"
+                          : selected < "0001-01-08"
+                      }
+                      onClick={() =>
+                        calendarMode === "month" ? moveMonth(-1) : moveWeek(-1)
+                      }
                     >
                       ‹
                     </button>
-                    <h2>{month}</h2>
+                    <h2>
+                      {calendarMode === "month"
+                        ? month
+                        : `${weekStart} — ${visibleDates[visibleDates.length - 1]}`}
+                    </h2>
                     <button
-                      aria-label="下个月"
-                      disabled={month === "9999-12"}
-                      onClick={() => moveMonth(1)}
+                      aria-label={
+                        calendarMode === "month" ? "下个月" : "下一周"
+                      }
+                      disabled={
+                        calendarMode === "month"
+                          ? month === "9999-12"
+                          : selected > "9999-12-24"
+                      }
+                      onClick={() =>
+                        calendarMode === "month" ? moveMonth(1) : moveWeek(1)
+                      }
                     >
                       ›
                     </button>
@@ -272,7 +370,7 @@ export function WorkbenchView() {
                         setSelected(state.localDate);
                       }}
                     >
-                      本月
+                      {calendarMode === "month" ? "本月" : "本周"}
                     </button>
                   </div>
                   <button
@@ -282,13 +380,16 @@ export function WorkbenchView() {
                     新建日程
                   </button>
                 </div>
-                <div className="calendar" aria-label="月历">
+                <div
+                  className={`calendar ${calendarMode === "week" ? "week-calendar" : ""}`}
+                  aria-label={calendarMode === "month" ? "月历" : "周历"}
+                >
                   {["一", "二", "三", "四", "五", "六", "日"].map((d) => (
                     <div className="weekday" key={d}>
                       {d}
                     </div>
                   ))}
-                  {calendarDays(month).map((date, index) =>
+                  {dates.map((date, index) =>
                     date ? (
                       <button
                         className={`day ${date === state.localDate ? "today" : ""}`}
@@ -309,7 +410,26 @@ export function WorkbenchView() {
                         {state.items
                           .filter((i) => i.date === date)
                           .map((i) => (
-                            <span key={i.id}>{i.title}</span>
+                            <span key={i.id}>
+                              {i.title}
+                              {calendarMode === "week" && (
+                                <small>
+                                  {i.startTime} — {i.endTime}
+                                </small>
+                              )}
+                            </span>
+                          ))}
+                        {occurrences
+                          .filter((o) => o.date === date)
+                          .map((o) => (
+                            <span className="recurring-title" key={o.id}>
+                              {o.title}
+                              {calendarMode === "week" && (
+                                <small>
+                                  {o.startTime} — {o.endTime} · 循环
+                                </small>
+                              )}
+                            </span>
                           ))}
                       </button>
                     ) : (
@@ -317,6 +437,51 @@ export function WorkbenchView() {
                     ),
                   )}
                 </div>
+                <details className="series-management">
+                  <summary>循环定义（{state.series.length}）</summary>
+                  {state.series.map((series) => (
+                    <article className="row" key={series.id}>
+                      <div>
+                        <h3>{series.title}</h3>
+                        <p>
+                          {series.startDate} — {series.endDate ?? "无结束日期"}{" "}
+                          ·{" "}
+                          {series.pattern === "daily"
+                            ? "每天"
+                            : `每周 ${series.weekdays.join("、")}`}{" "}
+                          · {series.startTime} — {series.endTime}
+                        </p>
+                      </div>
+                      <div className="source-actions">
+                        <button
+                          aria-label={`编辑整个循环 ${series.title}`}
+                          onClick={() =>
+                            setRecurrence({
+                              series,
+                              date: selected,
+                              action: "edit",
+                            })
+                          }
+                        >
+                          编辑整个循环
+                        </button>
+                        <button
+                          aria-label={`删除整个循环 ${series.title}`}
+                          onClick={() =>
+                            setRecurrence({
+                              series,
+                              date: selected,
+                              action: "delete",
+                            })
+                          }
+                        >
+                          删除整个循环
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </details>
+                <PlanInformation state={state} onChanged={refresh} />
                 <section>
                   <div className="section-heading">
                     <h2>注意力区间 · Current Vector</h2>
@@ -371,10 +536,24 @@ export function WorkbenchView() {
           state={state}
           onClose={() => setDay(undefined)}
           onChanged={refresh}
+          onOccurrence={(occurrence, action) =>
+            setRecurrence({ occurrence, action, date: day.date })
+          }
           onCreate={() => setEditor({ kind: "item", date: day.date })}
           onEdit={(item) =>
             setEditor({ kind: "item", value: item, date: day.date })
           }
+        />
+      )}
+      {recurrence && state && (
+        <RecurrenceDialog
+          editor={recurrence}
+          state={state}
+          onClose={() => setRecurrence(undefined)}
+          onSaved={async () => {
+            await refresh();
+            setRecurrence(undefined);
+          }}
         />
       )}
       {editor && state && (
@@ -391,7 +570,10 @@ export function WorkbenchView() {
     </div>
   );
   function sourceCard(
-    source: Extract<StateView["today"][number], { kind: "item" }>,
+    source: Extract<
+      StateView["today"][number],
+      { kind: "item" | "occurrence" }
+    >,
   ) {
     return (
       <article
@@ -405,13 +587,25 @@ export function WorkbenchView() {
         <div className="source-actions">
           <button
             aria-label={`编辑 ${source.title}`}
-            onClick={() =>
-              setEditor({
-                kind: "item",
-                date: state!.localDate,
-                value: state!.items.find((i) => i.id === source.id),
-              })
-            }
+            onClick={() => {
+              if (source.kind === "occurrence")
+                setRecurrence({
+                  date: state!.localDate,
+                  action: "edit",
+                  occurrence: expandOccurrences(
+                    state!.series,
+                    state!.exceptions,
+                    state!.localDate,
+                    state!.localDate,
+                  ).find((o) => o.id === source.id)!,
+                });
+              else
+                setEditor({
+                  kind: "item",
+                  date: state!.localDate,
+                  value: state!.items.find((i) => i.id === source.id),
+                });
+            }}
           >
             编辑
           </button>
