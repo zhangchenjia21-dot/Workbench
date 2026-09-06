@@ -1,0 +1,22 @@
+{
+  "name": "g04-electron-tray-spike",
+  "version": "0.0.1",
+  "private": true,
+  "description": "EXPLORATION / NOT CANONICAL ARCHITECTURE / NOT PRODUCTION COMMITMENT",
+  "main": "main.js",
+  "scripts": {
+    "package:win": "electron-builder --win dir"
+  },
+  "devDependencies": {
+    "electron": "^40.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.personalworkbench.g04electronspike",
+    "productName": "G04 Electron Spike",
+    "files": ["main.js", "index.html", "package.json"],
+    "win": {
+      "target": ["dir"]
+    }
+  }
+}
