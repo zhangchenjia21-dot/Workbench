@@ -1,4 +1,5 @@
 import { _electron as electron } from "playwright";
+import { verifyCorrection } from "./日程纠偏验证.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -39,7 +40,7 @@ async function launch() {
 }
 async function save(page) {
   await page.getByRole("button", { name: "保存", exact: true }).click();
-  await page.getByRole("dialog").waitFor({ state: "hidden" });
+  await page.locator("dialog:has(#editor-title)").waitFor({ state: "hidden" });
 }
 async function quit() {
   const processHandle = app.process();
@@ -74,7 +75,7 @@ try {
   proof.runtime = runtime;
   assert.match(page.url(), /^file:/);
   proof.checks.push("AC-01 packaged Today without dev server");
-  const date = await page.locator(".eyebrow").innerText();
+  const date = await page.locator("header .eyebrow").innerText();
   await page.getByRole("button", { name: "Tracks 长期状态" }).click();
   await page.getByRole("button", { name: "新建 Track", exact: true }).click();
   await page.getByLabel("名称", { exact: true }).fill("CPA");
@@ -124,7 +125,12 @@ try {
   await page.getByRole("button", { name: "Today 今日信息" }).click();
   await page.getByText("09:00 — 10:00 · CPA 改名", { exact: true }).waitFor();
   await page.getByRole("checkbox").first().check();
-  await page.getByRole("checkbox").nth(1).check();
+  assert.equal(await page.getByRole("checkbox").count(), 1);
+  const vectorRegion = page.getByRole("region", {
+    name: "当前注意力 · Current Vector",
+  });
+  assert.equal(await vectorRegion.getByRole("button").count(), 0);
+  assert.equal(await vectorRegion.getByRole("checkbox").count(), 0);
   await page
     .getByRole("button", { name: "编辑 会计练习", exact: true })
     .click();
@@ -172,6 +178,7 @@ try {
     "AC-08/09 packaged backup, invalid restore rejection, valid restore; native file pickers stubbed only",
   );
   await page.getByRole("button", { name: "Plan 未来安排" }).click();
+  await verifyCorrection(page, date, output, proof.checks);
   await page.screenshot({ path: join(output, "plan.png"), fullPage: true });
   await page.getByRole("button", { name: "下个月" }).click();
   await page.getByRole("button", { name: "本月", exact: true }).click();
@@ -181,6 +188,7 @@ try {
   await page
     .getByRole("button", { name: "编辑日程 会计练习已调整", exact: true })
     .waitFor();
+  await page.getByRole("button", { name: "关闭当天详情" }).click();
   await page.getByRole("button", { name: "Tracks 长期状态" }).click();
   await page.getByRole("button", { name: "进行中", exact: true }).click();
   await page.getByRole("heading", { name: "CPA 改名", exact: true }).waitFor();
@@ -206,9 +214,9 @@ try {
     "AC-11 real Tray click event shared handler, close-hide, existing-window focus, explicit Exit process code 0",
   );
   page = await launch();
-  assert.equal(await page.getByRole("checkbox").count(), 2);
+  assert.equal(await page.getByRole("checkbox").count(), 1);
   assert.equal(await page.getByRole("checkbox").first().isChecked(), true);
-  assert.equal(await page.getByRole("checkbox").nth(1).isChecked(), true);
+
   await page
     .getByRole("heading", { name: "会计练习已调整", exact: true })
     .waitFor();

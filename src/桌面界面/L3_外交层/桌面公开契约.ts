@@ -10,6 +10,8 @@ export interface DesktopAPI {
   saveTrack(id: string | null, draft: TrackDraft): Promise<void>;
   saveItem(id: string | null, draft: ItemDraft): Promise<void>;
   saveVector(id: string | null, draft: VectorDraft): Promise<void>;
+  /** 限定同一日期删除；null 清空该日，界面须先确认。跨日或过期选择拒绝。 */
+  deleteItems(date: string, ids: string[] | null): Promise<void>;
   acknowledge(date: string, source: string, flag: boolean): Promise<void>;
   backup(): Promise<string | null>;
   restore(): Promise<string | null>;

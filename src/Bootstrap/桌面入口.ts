@@ -126,6 +126,7 @@ async function start(): Promise<void> {
   handle("state:view", () => state.view());
   handle("state:track", (id, draft) => state.saveTrack(id, draft));
   handle("state:item", (id, draft) => state.saveItem(id, draft));
+  handle("state:delete-items", (date, ids) => state.deleteItems(date, ids));
   handle("state:vector", (id, draft) => state.saveVector(id, draft));
   handle("state:ack", (date, source, flag) => {
     if (date !== localDate()) throw new Error("本地日期已改变，请刷新 Today");

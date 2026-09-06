@@ -29,13 +29,14 @@ export interface VectorDraft {
 export interface Vector extends VectorDraft {
   id: string;
 }
-export interface TodaySource {
+interface TodaySourceBase {
   id: string;
-  kind: "vector" | "item";
   title: string;
   detail: string;
-  acknowledged: boolean;
 }
+/** Vector 仅为方向信息；只有单次日程具有当天视觉确认。 */
+export type TodaySource = TodaySourceBase &
+  ({ kind: "vector" } | { kind: "item"; acknowledged: boolean });
 export interface StateView {
   tracks: Track[];
   items: Item[];

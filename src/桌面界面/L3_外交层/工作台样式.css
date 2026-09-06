@@ -366,3 +366,81 @@ footer {
     transition: none;
   }
 }
+
+.current-vector {
+  background: #e8efff;
+  border-left: 5px solid #1d4ed8;
+  border-radius: 10px;
+  padding: 26px 28px;
+}
+.current-vector .eyebrow {
+  color: #1e40af;
+  margin-top: 0;
+}
+.current-vector h2 {
+  font-size: 16px;
+  color: #1e40af;
+}
+.current-vector h3 {
+  font-size: 26px;
+  line-height: 1.5;
+  margin: 18px 0 10px;
+}
+.current-vector .vector-note {
+  font-size: 13px;
+  color: #475569;
+  margin-top: 18px;
+}
+.day-detail {
+  width: min(860px, calc(100vw - 32px));
+}
+.day-detail .row {
+  gap: 12px;
+}
+.day-detail .day-selection {
+  margin: 0;
+}
+.day-selection input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+}
+.day-item-content {
+  flex: 1;
+  min-width: 0;
+}
+.day-menu {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: 210px;
+  padding: 6px;
+}
+.day-menu::backdrop {
+  background: transparent;
+}
+.day-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+}
+.danger {
+  background: #b91c1c;
+  color: white;
+}
+.danger:hover {
+  background: #991b1b;
+}
+.delete-confirmation {
+  background: #fef2f2;
+  padding: 20px;
+  border-radius: 8px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}

@@ -23,6 +23,8 @@ export function openWorkbench(path: string) {
     saveTrack: state.saveTrack.bind(state),
     saveItem: state.saveItem.bind(state),
     saveVector: state.saveVector.bind(state),
+    /** ids=null 清空指定日期；否则精确删除当日所选 ID。失败整批回滚，不影响 Track/Vector。 */
+    deleteItems: state.deleteItems.bind(state),
     acknowledge: state.acknowledge.bind(state),
     backup: (path: string) => store.backup(path),
     restore: (path: string) => store.restore(path),

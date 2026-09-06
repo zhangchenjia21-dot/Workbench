@@ -45,7 +45,6 @@ export class PersonalState {
           kind: "vector" as const,
           title: v.content,
           detail: `${v.startDate} — ${v.endDate}`,
-          acknowledged: ack.has(`vector:${v.id}`),
         })),
       ...items
         .filter((i) => i.date === date)
@@ -156,11 +155,43 @@ export class PersonalState {
       return key;
     });
   }
+  /** 原子删除一个日期内的单次日程；null 表示清空该日，混入其它日期/失效 ID 时整批拒绝。 */
+  deleteItems(date: string, ids: string[] | null): void {
+    dateOnly(date);
+    if (
+      ids !== null &&
+      (!Array.isArray(ids) || ids.some((id) => typeof id !== "string" || !id))
+    )
+      throw new Error("日程选择无效");
+    this.store.transaction(() => {
+      const dayIds = this.store.db
+        .prepare("SELECT id FROM items WHERE date=?")
+        .all(date)
+        .map((row) => String(row.id));
+      const chosen = ids === null ? dayIds : [...new Set(ids)];
+      if (chosen.some((id) => !dayIds.includes(id)))
+        throw new Error("选择中存在非当天或已变更的日程，请重新选择");
+      const remove = this.store.db.prepare(
+        "DELETE FROM items WHERE id=? AND date=?",
+      );
+      const removeAck = this.store.db.prepare(
+        "DELETE FROM acknowledgements WHERE sourceId=?",
+      );
+      for (const id of chosen) {
+        remove.run(id, date);
+        removeAck.run(`item:${id}`);
+      }
+    });
+  }
   acknowledge(date: string, sourceId: string, acknowledged: boolean): void {
     dateOnly(date);
     if (typeof acknowledged !== "boolean") throw new Error("确认值无效");
     this.store.transaction(() => {
-      if (!this.view(date).today.some((s) => `${s.kind}:${s.id}` === sourceId))
+      if (
+        !this.view(date).today.some(
+          (s) => s.kind === "item" && `item:${s.id}` === sourceId,
+        )
+      )
         throw new Error("此来源不属于当前日期，请刷新 Today");
       this.store.db
         .prepare(

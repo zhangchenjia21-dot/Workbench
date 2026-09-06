@@ -5,6 +5,8 @@ const api: DesktopAPI = {
   saveTrack: (id, draft) => ipcRenderer.invoke("state:track", id, draft),
   saveItem: (id, draft) => ipcRenderer.invoke("state:item", id, draft),
   saveVector: (id, draft) => ipcRenderer.invoke("state:vector", id, draft),
+  deleteItems: (date, ids) =>
+    ipcRenderer.invoke("state:delete-items", date, ids),
   acknowledge: (date, source, flag) =>
     ipcRenderer.invoke("state:ack", date, source, flag),
   backup: () => ipcRenderer.invoke("state:backup"),

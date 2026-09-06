@@ -7,6 +7,7 @@ import type {
   TrackStatus,
 } from "../../个人状态/L3_外交层/状态公开接口";
 import "./桌面公开契约";
+import { DayDetail, DayMenu } from "./当天日程详情";
 type Page = "Today" | "Plan" | "Tracks";
 type Editor =
   | { kind: "track"; value?: Track }
@@ -26,6 +27,8 @@ export function WorkbenchView() {
   const [selected, setSelected] = useState("");
   const [status, setStatus] = useState<TrackStatus>("Active");
   const [editor, setEditor] = useState<Editor>();
+  const [day, setDay] = useState<{ date: string; clear: boolean }>();
+  const [menu, setMenu] = useState<{ date: string; x: number; y: number }>();
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -141,33 +144,24 @@ export function WorkbenchView() {
           <>
             {page === "Today" && (
               <>
-                <section>
-                  <div className="section-heading">
-                    <h2>当前注意力 · Current Vector</h2>
-                    <button
-                      onClick={() => {
-                        setPage("Plan");
-                        setEditor({
-                          kind: "vector",
-                          value: state.vectors.find(
-                            (v) =>
-                              v.startDate <= state.localDate &&
-                              v.endDate >= state.localDate,
-                          ),
-                        });
-                      }}
-                    >
-                      调整方向
-                    </button>
-                  </div>
-                  {!state.today.some((s) => s.kind === "vector") && (
-                    <p className="empty">
-                      今天没有设定注意力方向。需要时可在 Plan 中添加。
-                    </p>
-                  )}
+                <section
+                  className="current-vector"
+                  aria-labelledby="vector-heading"
+                >
+                  <p className="eyebrow">PLAN · 当前方向</p>
+                  <h2 id="vector-heading">当前注意力 · Current Vector</h2>
                   {state.today
                     .filter((s) => s.kind === "vector")
-                    .map((s) => sourceCard(s))}
+                    .map((s) => (
+                      <div key={s.id}>
+                        <h3>{s.title}</h3>
+                        <p>{s.detail}</p>
+                      </div>
+                    ))}
+                  {!state.today.some((s) => s.kind === "vector") && (
+                    <p>今天没有设定注意力方向。</p>
+                  )}
+                  <p className="vector-note">注意力方向在 Plan 中维护。</p>
                 </section>
                 <section>
                   <div className="section-heading">
@@ -301,15 +295,21 @@ export function WorkbenchView() {
                         aria-pressed={date === selected}
                         aria-label={`选择日期 ${date}`}
                         key={date}
-                        onClick={() => setSelected(date)}
+                        onClick={() => {
+                          setSelected(date);
+                          setDay({ date, clear: false });
+                        }}
+                        onContextMenu={(event) => {
+                          event.preventDefault();
+                          setSelected(date);
+                          setMenu({ date, x: event.clientX, y: event.clientY });
+                        }}
                       >
                         <b>{Number(date.slice(-2))}</b>
                         {state.items
                           .filter((i) => i.date === date)
                           .map((i) => (
-                            <span key={i.id}>
-                              {i.startTime} {i.title}
-                            </span>
+                            <span key={i.id}>{i.title}</span>
                           ))}
                       </button>
                     ) : (
@@ -317,44 +317,6 @@ export function WorkbenchView() {
                     ),
                   )}
                 </div>
-                <section>
-                  <h2>{selected} 的日程</h2>
-                  {state.items
-                    .filter((i) => i.date === selected)
-                    .map((i) => (
-                      <article className="row" key={i.id}>
-                        <div>
-                          <h3>{i.title}</h3>
-                          <p>
-                            {i.startTime} — {i.endTime}
-                            {i.trackId
-                              ? ` · ${state.tracks.find((t) => t.id === i.trackId)?.name}`
-                              : ""}
-                          </p>
-                        </div>
-                        <button
-                          aria-label={`编辑日程 ${i.title}`}
-                          onClick={() =>
-                            setEditor({
-                              kind: "item",
-                              value: i,
-                              date: selected,
-                            })
-                          }
-                        >
-                          编辑
-                        </button>
-                      </article>
-                    ))}
-                  {!state.items.some((i) => i.date === selected) && (
-                    <p className="empty">这一天还没有安排。</p>
-                  )}
-                  <button
-                    onClick={() => setEditor({ kind: "item", date: selected })}
-                  >
-                    为这一天添加日程
-                  </button>
-                </section>
                 <section>
                   <div className="section-heading">
                     <h2>注意力区间 · Current Vector</h2>
@@ -389,6 +351,32 @@ export function WorkbenchView() {
           </>
         )}
       </main>
+      {menu && (
+        <DayMenu
+          menu={menu}
+          onClose={() => setMenu(undefined)}
+          onAction={(action) => {
+            const date = menu.date;
+            setMenu(undefined);
+            if (action === "new") setEditor({ kind: "item", date });
+            else setDay({ date, clear: action === "clear" });
+          }}
+        />
+      )}
+      {day && state && (
+        <DayDetail
+          key={day.date}
+          date={day.date}
+          initialClear={day.clear}
+          state={state}
+          onClose={() => setDay(undefined)}
+          onChanged={refresh}
+          onCreate={() => setEditor({ kind: "item", date: day.date })}
+          onEdit={(item) =>
+            setEditor({ kind: "item", value: item, date: day.date })
+          }
+        />
+      )}
       {editor && state && (
         <EditDialog
           editor={editor}
@@ -402,7 +390,9 @@ export function WorkbenchView() {
       )}
     </div>
   );
-  function sourceCard(source: StateView["today"][number]) {
+  function sourceCard(
+    source: Extract<StateView["today"][number], { kind: "item" }>,
+  ) {
     return (
       <article
         className={`row ${source.acknowledged ? "acknowledged" : ""}`}
@@ -416,18 +406,11 @@ export function WorkbenchView() {
           <button
             aria-label={`编辑 ${source.title}`}
             onClick={() =>
-              setEditor(
-                source.kind === "vector"
-                  ? {
-                      kind: "vector",
-                      value: state!.vectors.find((v) => v.id === source.id),
-                    }
-                  : {
-                      kind: "item",
-                      date: state!.localDate,
-                      value: state!.items.find((i) => i.id === source.id),
-                    },
-              )
+              setEditor({
+                kind: "item",
+                date: state!.localDate,
+                value: state!.items.find((i) => i.id === source.id),
+              })
             }
           >
             编辑

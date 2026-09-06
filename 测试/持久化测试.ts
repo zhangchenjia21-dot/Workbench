@@ -247,3 +247,57 @@ test("恢复后 reopen 失败使用安全快照补偿，补偿失败发出致命
     rmSync(dir, { recursive: true });
   }
 });
+
+test("既有 Vector 确认只读忽略；删除与日程确认在重启/快照恢复后保持", () => {
+  const dir = mkdtempSync(join(tmpdir(), "pwb-correction-"));
+  const path = join(dir, "live.sqlite");
+  let app = openWorkbench(path);
+  try {
+    const vector = app.saveVector(null, {
+      content: "方向",
+      startDate: "2026-09-06",
+      endDate: "2026-09-06",
+    });
+    const item = app.saveItem(null, {
+      title: "保留",
+      date: "2026-09-06",
+      startTime: "09:00",
+      endTime: "10:00",
+      trackId: null,
+    });
+    const removed = app.saveItem(null, {
+      title: "删除",
+      date: "2026-09-06",
+      startTime: "10:00",
+      endTime: "11:00",
+      trackId: null,
+    });
+    app.acknowledge("2026-09-06", `item:${item}`, true);
+    app.close();
+    const legacy = connect(path);
+    legacy
+      .prepare("INSERT INTO acknowledgements VALUES(?,?,1)")
+      .run("2026-09-06", `vector:${vector}`);
+    legacy.close();
+    app = openWorkbench(path);
+    assert.equal("acknowledged" in app.view("2026-09-06").today[0], false);
+    assert.throws(() =>
+      app.acknowledge("2026-09-06", `vector:${vector}`, true),
+    );
+    app.deleteItems("2026-09-06", [removed]);
+    const expected = app.view("2026-09-06");
+    app.backup(join(dir, "backup.sqlite"));
+    app.deleteItems("2026-09-06", null);
+    app.restore(join(dir, "backup.sqlite"));
+    app.close();
+    app = openWorkbench(path);
+    assert.deepEqual(app.view("2026-09-06"), expected);
+    assert.equal(
+      app.view("2026-09-06").today.find((s) => s.kind === "item")!.acknowledged,
+      true,
+    );
+  } finally {
+    app.close();
+    rmSync(dir, { recursive: true });
+  }
+});
