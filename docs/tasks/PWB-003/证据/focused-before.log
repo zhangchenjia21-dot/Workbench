@@ -1,0 +1,55 @@
+{"audit":"A-01","residualAfterDelete":1,"reeditAcknowledged":true,"publicCommandAccepted":true}
+(node:36496) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✖ PWB-003 A-01 删除 occurrence 后重启/恢复/公开重编辑不复活旧确认 (188.1093ms)
+✖ PWB-003 A-01 旧快照 tombstone 的历史确认在重编辑时被精确清除且失败原子回滚 (140.4821ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 767.9361
+
+✖ failing tests:
+
+test at 测试\可靠性测试.ts:2:2052
+✖ PWB-003 A-01 删除 occurrence 后重启/恢复/公开重编辑不复活旧确认 (188.1093ms)
+  AssertionError [ERR_ASSERTION]: 删除边界之前的确认不能重新生效
+  
+  true !== false
+  
+      at TestContext.<anonymous> (D:\AI\Projects\Workbench\测试\可靠性测试.ts:45:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at 测试\可靠性测试.ts:2:4174
+✖ PWB-003 A-01 旧快照 tombstone 的历史确认在重编辑时被精确清除且失败原子回滚 (140.4821ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (D:\AI\Projects\Workbench\测试\可靠性测试.ts:63:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
