@@ -311,6 +311,19 @@ export class PersonalState {
       const series = readSeries(this.store.db).find((s) => s.id === seriesId);
       if (!series) throw new Error("循环不存在，请刷新");
       validateOriginalKey(series, originalKey);
+      // 删除边界终止该 occurrence 的视觉确认；旧快照的 tombstone 重编辑也须清理历史残留。
+      // 与下方例外写入同事务，失败时一起回滚；普通未删除编辑保持原确认语义。
+      if (
+        value === null ||
+        this.store.db
+          .prepare(
+            "SELECT 1 FROM exceptions WHERE seriesId=? AND originalKey=? AND deleted=1",
+          )
+          .get(seriesId, originalKey)
+      )
+        this.store.db
+          .prepare("DELETE FROM acknowledgements WHERE sourceId=?")
+          .run(`occurrence:${seriesId}@${originalKey}`);
       this.store.db
         .prepare(
           "INSERT INTO exceptions(seriesId,originalKey,deleted,title,date,startTime,endTime,trackId) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(seriesId,originalKey) DO UPDATE SET deleted=excluded.deleted,title=excluded.title,date=excluded.date,startTime=excluded.startTime,endTime=excluded.endTime,trackId=excluded.trackId",
