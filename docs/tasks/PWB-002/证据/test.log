@@ -1,0 +1,24 @@
+
+> personal-workbench@0.1.0 test
+> tsx --test 测试/领域测试.ts
+
+(node:8800) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 日期严格按日历校验，不进行 UTC 转换 (2.3087ms)
+✔ 稳定身份、生命周期、单次日程编辑与改名关联 (75.6974ms)
+✔ Vector create/edit 包含端点拒绝，失败后 canonical 不变 (45.2997ms)
+✔ Today 精确投影与 acknowledgement 隔离 (73.5106ms)
+✔ 当天删除严格限定选择与日期，整批拒绝跨日或过期 ID (99.2248ms)
+✔ PWB-002 daily/weekly 动态展开、inclusive 边界与无结束循环 (25.4761ms)
+✔ PWB-002 移动原身份、仅一次删除、确认隔离、整循环警告与清除策略 (111.0476ms)
+✔ PWB-002 信息对象稳定身份与精确 Today projection (120.0153ms)
+✔ PWB-002 日期算术跨年/闰日及 DST 本地 wall-time 与 Today 边界 (347.5149ms)
+✔ PWB-002 无效规则/关联/原键拒绝，失败整循环更新保留既有例外 (54.751ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1597.4065

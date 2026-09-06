@@ -1,0 +1,34 @@
+[
+  {
+    "command": "npm ci --no-audit --no-fund",
+    "exitCode": 0
+  },
+  {
+    "command": "npm run lint",
+    "exitCode": 0
+  },
+  {
+    "command": "npm run typecheck",
+    "exitCode": 0
+  },
+  {
+    "command": "npm test",
+    "exitCode": 0
+  },
+  {
+    "command": "npm run test:integration",
+    "exitCode": 0
+  },
+  {
+    "command": "npm run build",
+    "exitCode": 0
+  },
+  {
+    "command": "npm run package:win",
+    "exitCode": 0
+  },
+  {
+    "command": "npm run test:packaged",
+    "exitCode": 0
+  }
+]

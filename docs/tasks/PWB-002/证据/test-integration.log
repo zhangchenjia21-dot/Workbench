@@ -1,0 +1,21 @@
+
+> personal-workbench@0.1.0 test:integration
+> tsx --test 测试/持久化测试.ts
+
+(node:13096) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ restart、独立备份、无效恢复拒绝、staged restore 与安全备份 (185.5686ms)
+✔ 真实进程中断未提交写入后重开无部分事实 (153.0153ms)
+✔ 旧版 fixture 按序升级，升级前快照保留旧版；失败 DDL/version/data 全部回滚 (198.5459ms)
+✔ 恢复后 reopen 失败使用安全快照补偿，补偿失败发出致命错误 (218.7218ms)
+✔ 既有 Vector 确认只读忽略；删除与日程确认在重启/快照恢复后保持 (151.0263ms)
+✔ PWB-002 真实 TA-1A v2 数据升级、启动失败回滚、旧备份 staging 升级 (206.8955ms)
+✔ PWB-002 完整 V0 graph 独立快照、恢复、移动确认重启与无效例外拒绝 (255.9114ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1845.9409
