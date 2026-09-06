@@ -1,0 +1,19 @@
+
+> personal-workbench@0.1.0 test
+> tsx --test 测试/领域测试.ts
+
+(node:20940) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 日期严格按日历校验，不进行 UTC 转换 (2.4848ms)
+✔ 稳定身份、生命周期、单次日程编辑与改名关联 (79.2893ms)
+✔ Vector create/edit 包含端点拒绝，失败后 canonical 不变 (44.5999ms)
+✔ Today 精确投影与 acknowledgement 隔离 (68.5272ms)
+✔ 当天删除严格限定选择与日期，整批拒绝跨日或过期 ID (134.404ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 911.1627

@@ -1,0 +1,19 @@
+
+> personal-workbench@0.1.0 test:integration
+> tsx --test 测试/持久化测试.ts
+
+(node:2040) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ restart、独立备份、无效恢复拒绝、staged restore 与安全备份 (185.1484ms)
+✔ 真实进程中断未提交写入后重开无部分事实 (137.265ms)
+✔ 旧版 fixture 按序升级，升级前快照保留旧版；失败 DDL/version/data 全部回滚 (188.8484ms)
+✔ 恢复后 reopen 失败使用安全快照补偿，补偿失败发出致命错误 (184.9857ms)
+✔ 既有 Vector 确认只读忽略；删除与日程确认在重启/快照恢复后保持 (140.9902ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1302.512

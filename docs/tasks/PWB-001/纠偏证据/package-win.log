@@ -1,0 +1,17 @@
+
+> personal-workbench@0.1.0 package:win
+> npm run build && electron-builder --win dir --x64
+
+
+> personal-workbench@0.1.0 build
+> node scripts/构建应用.mjs
+
+  • electron-builder  version=26.0.12 os=10.0.26200
+  • loaded configuration  file=package.json ("build" field)
+  • executing @electron/rebuild  electronVersion=40.0.0 arch=x64 buildFromSource=false appDir=./
+  • installing native dependencies  arch=x64
+  • completed installing native dependencies
+  • packaging       platform=win32 arch=x64 electron=40.0.0 appOutDir=out\win-unpacked
+(node:9456) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  • updating asar integrity executable resource  executablePath=out\win-unpacked\Workbench.exe
