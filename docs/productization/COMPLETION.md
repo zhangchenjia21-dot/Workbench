@@ -1,5 +1,7 @@
 # Autonomous Productization Completion
 
+最新 Owner 私有仓库修正见 [私有仓库连接修订](私有仓库连接修订.md)；下文保留初次交付记录。
+
 状态：**IMPLEMENTED / READY FOR 05 INDEPENDENT REVIEW + PRODUCT REALITY REVIEW**。
 
 **最大问题**：Workbench 的输入端与真实工作断开。Owner 每次要先回忆、搬运和录入，日历再好用也不能替他看见变化。

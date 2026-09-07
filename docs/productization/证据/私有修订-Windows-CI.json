@@ -1,0 +1,414 @@
+{
+  "run": "https://github.com/zhangchenjia21-dot/Workbench/actions/runs/34081705591",
+  "head": "3f34a4d514c0ec5f163fb021d64a4f007e6669ba",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "id": 101618077041,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-09-07T04:03:24Z",
+          "completed_at": "2026-09-07T04:03:25Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-09-07T04:03:26Z",
+          "completed_at": "2026-09-07T04:03:32Z"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-09-07T04:03:32Z",
+          "completed_at": "2026-09-07T04:03:50Z"
+        },
+        {
+          "name": "Run npm ci --no-audit --no-fund",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-09-07T04:03:50Z",
+          "completed_at": "2026-09-07T04:04:08Z"
+        },
+        {
+          "name": "Run npm run lint",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-09-07T04:04:08Z",
+          "completed_at": "2026-09-07T04:04:13Z"
+        },
+        {
+          "name": "Run npm run typecheck",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-09-07T04:04:13Z",
+          "completed_at": "2026-09-07T04:04:16Z"
+        },
+        {
+          "name": "Run npm test",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-09-07T04:04:16Z",
+          "completed_at": "2026-09-07T04:04:19Z"
+        },
+        {
+          "name": "Run npm run test:integration",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-09-07T04:04:19Z",
+          "completed_at": "2026-09-07T04:04:38Z"
+        },
+        {
+          "name": "Run npm run build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-09-07T04:04:38Z",
+          "completed_at": "2026-09-07T04:04:39Z"
+        },
+        {
+          "name": "Run npm run package:win",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-09-07T04:04:39Z",
+          "completed_at": "2026-09-07T04:04:46Z"
+        },
+        {
+          "name": "Run npm run test:packaged",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-09-07T04:04:46Z",
+          "completed_at": "2026-09-07T04:05:22Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-09-07T04:05:22Z",
+          "completed_at": "2026-09-07T04:05:37Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-09-07T04:05:37Z",
+          "completed_at": "2026-09-07T04:05:37Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 24,
+          "started_at": "2026-09-07T04:05:37Z",
+          "completed_at": "2026-09-07T04:05:40Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-09-07T04:05:40Z",
+          "completed_at": "2026-09-07T04:05:40Z"
+        }
+      ]
+    }
+  ],
+  "packaged": {
+    "asarSha256": "3c065b45804564ab1615307407c1fe4a54b842a692d248fd97b0f518ea2ddfde",
+    "platform": "win32",
+    "node": "v24.11.0",
+    "head": "3f34a4d514c0ec5f163fb021d64a4f007e6669ba",
+    "executable": "D:\\a\\Workbench\\Workbench\\out\\win-unpacked\\Workbench.exe",
+    "sha256": "8c8d2eb38dbb77f371498c000e3baa82ed1571bf92b3df74f000f20f789d1f02",
+    "userData": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\pwb-packaged-GQeGVe",
+    "checks": [
+      "AC-01 packaged Today without dev server",
+      "AC-03/04 normal UI item/vector create and overlap rejection",
+      "AC-02/05/06/13 UI lifecycle, rename link, Today projection, source edit and acknowledgement",
+      "AC-08/09 packaged backup, invalid restore rejection, valid restore; native file pickers stubbed only",
+      "UAT-AC-01/02 title-first timed cells; day-only GUI create/list/edit; no persistent day list on Plan",
+      "UAT-AC-02/03/04 single delete, multi-item edit chooser and exact same-day selected deletion; unselected/other-day/Vector preserved",
+      "UAT-AC-03 clear cancel unchanged; confirm only clicked date; right-click create date context and explicit edit-date movement",
+      "UAT-AC-05/06 distinct read-only Today Vector derived from Plan; Scheduled Item acknowledgement unchanged",
+      "AC-11 real Tray click event shared handler, close-hide, existing-window focus, explicit Exit process code 0",
+      "AC-07 packaged restart preserves restored state and same-date acknowledgements",
+      "PWB-002 AC-02..07 normal UI daily/weekly; moved original identity; single delete; whole-series exceptions cancel unchanged / confirm clears",
+      "PWB-002 AC-08..13/17 normal UI information CRUD, future filtering, Unscheduled exclusion, Week navigation/edit reflected Month/Today, moved acknowledgement isolation",
+      "PWB-002 AC-16/18 packaged full-V0 snapshot and validated restore preserve complete identities/links/exceptions/ack; native backup pickers stubbed only",
+      "PWB-003 H-AC-02/06/07/08 6 same-session normal GUI create/ack/single-delete/whole-delete and selected item delete; Month/Week/Today agree; exact canonical/ack baseline each round",
+      "PWB-003 H-AC-09 6 close-hide/process-alive/real Tray click or double-click handler/restore-focus cycles, same window id and count=1; followed by existing real Exit code 0 and restart",
+      "PWB-002 AC-13/16/18 full-V0 restart preserves moved occurrence acknowledgement and complete canonical graph"
+    ],
+    "runtime": {
+      "packaged": true,
+      "versions": {
+        "node": "24.11.1",
+        "acorn": "8.15.0",
+        "ada": "3.3.0",
+        "amaro": "1.1.4",
+        "ares": "1.34.5",
+        "brotli": "1.0.9",
+        "cjs_module_lexer": "2.1.0",
+        "cldr": "47.0",
+        "icu": "77.1",
+        "llhttp": "9.3.0",
+        "modules": "143",
+        "napi": "10",
+        "nbytes": "0.1.1",
+        "ncrypto": "0.0.1",
+        "nghttp2": "1.66.0",
+        "openssl": "0.0.0",
+        "simdjson": "4.0.7",
+        "simdutf": "7.7.0",
+        "sqlite": "3.50.4",
+        "tz": "2025b",
+        "undici": "7.16.0",
+        "unicode": "16.0",
+        "uv": "1.51.0",
+        "uvwasi": "0.0.23",
+        "v8": "14.4.258.16-electron.0",
+        "zlib": "1.3.1",
+        "zstd": "1.5.8",
+        "electron": "40.0.0",
+        "chrome": "144.0.7559.60"
+      },
+      "dataPath": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\pwb-packaged-GQeGVe",
+      "tray": true
+    },
+    "hardening": {
+      "sessionIterations": 6,
+      "guiMutations": 36,
+      "cycles": [
+        {
+          "iteration": 1,
+          "hidden": {
+            "count": 1,
+            "id": 1,
+            "visible": false,
+            "destroyed": false,
+            "tray": true
+          },
+          "restored": {
+            "count": 1,
+            "id": 1,
+            "visible": true,
+            "focused": true
+          }
+        },
+        {
+          "iteration": 2,
+          "hidden": {
+            "count": 1,
+            "id": 1,
+            "visible": false,
+            "destroyed": false,
+            "tray": true
+          },
+          "restored": {
+            "count": 1,
+            "id": 1,
+            "visible": true,
+            "focused": true
+          }
+        },
+        {
+          "iteration": 3,
+          "hidden": {
+            "count": 1,
+            "id": 1,
+            "visible": false,
+            "destroyed": false,
+            "tray": true
+          },
+          "restored": {
+            "count": 1,
+            "id": 1,
+            "visible": true,
+            "focused": true
+          }
+        },
+        {
+          "iteration": 4,
+          "hidden": {
+            "count": 1,
+            "id": 1,
+            "visible": false,
+            "destroyed": false,
+            "tray": true
+          },
+          "restored": {
+            "count": 1,
+            "id": 1,
+            "visible": true,
+            "focused": true
+          }
+        },
+        {
+          "iteration": 5,
+          "hidden": {
+            "count": 1,
+            "id": 1,
+            "visible": false,
+            "destroyed": false,
+            "tray": true
+          },
+          "restored": {
+            "count": 1,
+            "id": 1,
+            "visible": true,
+            "focused": true
+          }
+        },
+        {
+          "iteration": 6,
+          "hidden": {
+            "count": 1,
+            "id": 1,
+            "visible": false,
+            "destroyed": false,
+            "tray": true
+          },
+          "restored": {
+            "count": 1,
+            "id": 1,
+            "visible": true,
+            "focused": true
+          }
+        }
+      ],
+      "finalGraph": "deepEqual complete V0 baseline",
+      "finalAcknowledgements": "exact baseline rows",
+      "integrity": "ok",
+      "pageErrors": [],
+      "stderr": []
+    },
+    "result": "PASS"
+  },
+  "projects": {
+    "mode": "deterministic network fixture, production UI/IPC/SQLite",
+    "startedAt": "2026-09-07T04:05:17.236Z",
+    "head": "3f34a4d514c0ec5f163fb021d64a4f007e6669ba",
+    "userData": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\pwb-project-wheK2Y",
+    "executable": "D:\\a\\Workbench\\Workbench\\out\\win-unpacked\\Workbench.exe",
+    "asarSha256": "3c065b45804564ab1615307407c1fe4a54b842a692d248fd97b0f518ea2ddfde",
+    "checks": [
+      "Normal GUI connect -> evidence -> cancel leaves core unchanged -> editable explicit confirmation -> linked Track; Plan and lifecycle unchanged",
+      "Repeated refresh dedupes; new evidence does not overwrite Track; existing Track proposal edits same identity; seen stays seen; offline preserves evidence and disables adoption",
+      "Disconnect preserves canonical Track; native-picker-only backup/restore roundtrip and packaged restart preserve source, stable IDs, snapshots and canonical core"
+    ],
+    "firstSource": {
+      "id": "d28c78b4-6d11-4c53-b3fc-173ef97ddea5",
+      "repository": "zhangchenjia21-dot/workbench",
+      "trackId": null,
+      "checkedAt": "2026-09-07T04:05:18.790Z",
+      "error": null,
+      "latest": {
+        "id": "4ec8090f-cf1c-4599-97af-174fcc4a2c47",
+        "sourceId": "d28c78b4-6d11-4c53-b3fc-173ef97ddea5",
+        "fetchedAt": "2026-09-07T04:05:18.790Z",
+        "snapshot": {
+          "repositoryId": 1358719703,
+          "private": false,
+          "repository": "zhangchenjia21-dot/workbench",
+          "branch": "main",
+          "commits": [
+            {
+              "sha": "1111111111111111111111111111111111111111",
+              "title": "工作台主线变化 1",
+              "date": "2026-09-06T10:00:00Z"
+            }
+          ],
+          "pulls": [
+            {
+              "number": 27,
+              "title": "修复备份边界，等待审核",
+              "draft": false
+            }
+          ],
+          "morePulls": false,
+          "checksAvailable": true,
+          "checks": [
+            {
+              "id": 42,
+              "name": "Windows regression",
+              "status": "completed",
+              "conclusion": "failure"
+            }
+          ]
+        },
+        "disposition": "new"
+      }
+    },
+    "finalSource": {
+      "id": "d28c78b4-6d11-4c53-b3fc-173ef97ddea5",
+      "repository": "zhangchenjia21-dot/workbench",
+      "trackId": "892bb716-686f-498c-b4e1-3d621c05225c",
+      "checkedAt": "2026-09-07T04:05:20.807Z",
+      "error": null,
+      "latest": {
+        "id": "6fbd6bc7-0c91-4392-bfb6-5b399bbfaa57",
+        "sourceId": "d28c78b4-6d11-4c53-b3fc-173ef97ddea5",
+        "fetchedAt": "2026-09-07T04:05:20.354Z",
+        "snapshot": {
+          "repositoryId": 1358719703,
+          "private": false,
+          "repository": "zhangchenjia21-dot/workbench",
+          "branch": "main",
+          "commits": [
+            {
+              "sha": "3333333333333333333333333333333333333333",
+              "title": "工作台主线变化 3",
+              "date": "2026-09-06T10:00:00Z"
+            }
+          ],
+          "pulls": [
+            {
+              "number": 27,
+              "title": "修复备份边界，等待审核",
+              "draft": false
+            }
+          ],
+          "morePulls": false,
+          "checksAvailable": true,
+          "checks": [
+            {
+              "id": 42,
+              "name": "Windows regression",
+              "status": "completed",
+              "conclusion": "failure"
+            }
+          ]
+        },
+        "disposition": "seen"
+      }
+    },
+    "finalTrack": {
+      "id": "892bb716-686f-498c-b4e1-3d621c05225c",
+      "name": "Workbench 项目",
+      "goal": "",
+      "phase": "",
+      "realState": "已核对新的项目依据，继续处理验证失败。",
+      "direction": "先查看失败的验证记录，确认影响后再推进。",
+      "status": "Active",
+      "updatedAt": "2026-09-07T04:05:20.279Z"
+    },
+    "result": "ENGINEERING_VALIDATION_PASS",
+    "finishedAt": "2026-09-07T04:05:22.781Z"
+  }
+}

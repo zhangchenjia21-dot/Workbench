@@ -1,0 +1,16 @@
+{
+  "mode": "official GitHub API, no network fixture",
+  "startedAt": "2026-09-07T04:02:39.759Z",
+  "head": "72ad005000196514a79dc62539815f83b7ac2466",
+  "userData": "C:\\Users\\MRVHREVO\\AppData\\Local\\Temp\\pwb-project-mJJL2Y",
+  "executable": "D:\\AI\\Projects\\Workbench\\out\\win-unpacked\\Workbench.exe",
+  "asarSha256": "3c065b45804564ab1615307407c1fe4a54b842a692d248fd97b0f518ea2ddfde",
+  "checks": [
+    "Normal GUI connect -> evidence -> cancel leaves core unchanged -> editable explicit confirmation -> linked Track; Plan and lifecycle unchanged",
+    "Disconnect preserves canonical Track; native-picker-only backup/restore roundtrip and packaged restart preserve source, stable IDs, snapshots and canonical core"
+  ],
+  "privateRepositoryRead": true,
+  "privateContentRedacted": true,
+  "result": "ENGINEERING_VALIDATION_PASS",
+  "finishedAt": "2026-09-07T04:02:47.544Z"
+}
