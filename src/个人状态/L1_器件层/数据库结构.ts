@@ -1,3 +1,7 @@
+import {
+  repositoryName,
+  validateProjectSnapshot,
+} from "../L0_公理层/项目来源契约";
 import { DatabaseSync } from "node:sqlite";
 import {
   validateSeries,
@@ -21,7 +25,7 @@ import {
 } from "../L0_公理层/状态契约";
 
 export const APP_ID = 0x50574231;
-export const VERSION = 3;
+export const VERSION = 4;
 // 原 v1/v2 DDL 保持字节兼容；v3 只增加 Complete V0 的事实表，无预生成 occurrence。
 export const migrations = [
   `CREATE TABLE tracks (id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, goal TEXT NOT NULL, phase TEXT NOT NULL, realState TEXT NOT NULL, direction TEXT NOT NULL, status TEXT NOT NULL CHECK(status IN ('Active','Completed','Archived')), updatedAt TEXT NOT NULL);
@@ -33,6 +37,8 @@ export const migrations = [
    CREATE TABLE reminders (id TEXT PRIMARY KEY NOT NULL, content TEXT NOT NULL, date TEXT NOT NULL, time TEXT);
    CREATE TABLE memos (id TEXT PRIMARY KEY NOT NULL, content TEXT NOT NULL, date TEXT NOT NULL);
    CREATE TABLE unscheduled (id TEXT PRIMARY KEY NOT NULL, content TEXT NOT NULL, trackId TEXT REFERENCES tracks(id));`,
+  `CREATE TABLE project_sources (id TEXT PRIMARY KEY NOT NULL, repository TEXT UNIQUE NOT NULL, trackId TEXT REFERENCES tracks(id), checkedAt TEXT, error TEXT);
+   CREATE TABLE project_updates (sequence INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT UNIQUE NOT NULL, sourceId TEXT NOT NULL REFERENCES project_sources(id) ON DELETE CASCADE, fetchedAt TEXT NOT NULL, payload TEXT NOT NULL, disposition TEXT NOT NULL CHECK(disposition IN ('new','seen','applied')));`,
 ];
 export function version(db: DatabaseSync): number {
   return Number(db.prepare("PRAGMA user_version").get()!.user_version);
@@ -130,6 +136,49 @@ export function validateDatabase(db: DatabaseSync): void {
       validateUnscheduled(r as unknown as Unscheduled);
     }
   }
+  if (v >= 4) {
+    const sources = db.prepare("SELECT * FROM project_sources").all();
+    if (sources.length > 3) throw Error("项目来源数量无效");
+    for (const r of sources) {
+      textField(r.id, "Source ID", true);
+      if (
+        typeof r.repository !== "string" ||
+        repositoryName(r.repository) !== r.repository ||
+        (r.checkedAt !== null &&
+          (typeof r.checkedAt !== "string" ||
+            !Number.isFinite(Date.parse(r.checkedAt)))) ||
+        (r.error !== null &&
+          (typeof r.error !== "string" || r.error.length > 1000))
+      )
+        throw Error("项目来源无效");
+      const updates = db
+        .prepare(
+          "SELECT * FROM project_updates WHERE sourceId=? ORDER BY sequence",
+        )
+        .all(r.id);
+      if (updates.length > 20) throw Error("项目快照数量无效");
+      let repositoryId: number | undefined;
+      for (const u of updates) {
+        textField(u.id, "Update ID", true);
+        if (
+          typeof u.payload !== "string" ||
+          u.payload.length > 100000 ||
+          typeof u.fetchedAt !== "string" ||
+          !Number.isFinite(Date.parse(u.fetchedAt))
+        )
+          throw Error("项目快照无效");
+        const snapshot = JSON.parse(u.payload);
+        validateProjectSnapshot(snapshot);
+        if (
+          snapshot.repository !== r.repository ||
+          (repositoryId !== undefined && repositoryId !== snapshot.repositoryId)
+        )
+          throw Error("项目来源身份不匹配");
+        repositoryId = snapshot.repositoryId;
+      }
+    }
+  }
+
   if (v >= 2)
     for (const r of db.prepare("SELECT * FROM acknowledgements").all()) {
       dateOnly(r.date);

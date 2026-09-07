@@ -1,5 +1,7 @@
+import { ProjectOverview } from "./项目近况页面";
 import { useEffect, useState, useRef, type FormEvent } from "react";
 import type {
+  ProjectSource,
   StateView,
   Track,
   Item,
@@ -15,7 +17,7 @@ import {
 import { RecurrenceDialog, type RecurrenceEditor } from "./循环日程编辑";
 import { PlanInformation } from "./计划信息维护";
 import { DayDetail, DayMenu } from "./当天日程详情";
-type Page = "Today" | "Plan" | "Tracks";
+type Page = "Today" | "Plan" | "Tracks" | "Sources";
 type Editor =
   | { kind: "track"; value?: Track }
   | { kind: "item"; value?: Item; date: string }
@@ -30,6 +32,7 @@ const statuses: Record<TrackStatus, string> = {
 export function WorkbenchView() {
   const [recurrence, setRecurrence] = useState<RecurrenceEditor>();
   const [calendarMode, setCalendarMode] = useState<"month" | "week">("month");
+  const [projects, setProjects] = useState<ProjectSource[]>([]);
   const [state, setState] = useState<StateView>();
   const [page, setPage] = useState<Page>("Today");
   const [month, setMonth] = useState("");
@@ -42,7 +45,11 @@ export function WorkbenchView() {
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const refresh = async () => {
-    const result = await window.workbench.view();
+    const [result, sources] = await Promise.all([
+      window.workbench.view(),
+      window.workbench.projectSources(),
+    ]);
+    setProjects(sources);
     setState(result);
     setMonth((m) => m || result.localDate.slice(0, 7));
     setSelected((d) => d || result.localDate);
@@ -121,7 +128,7 @@ export function WorkbenchView() {
         </div>
         <p className="muted">个人工作台</p>
         <nav aria-label="主导航">
-          {(["Today", "Plan", "Tracks"] as const).map((p) => (
+          {(["Today", "Tracks", "Plan", "Sources"] as const).map((p) => (
             <button
               key={p}
               aria-current={p === page ? "page" : undefined}
@@ -132,7 +139,14 @@ export function WorkbenchView() {
             >
               {p}
               <small>
-                {{ Today: "今日信息", Plan: "未来安排", Tracks: "长期状态" }[p]}
+                {
+                  {
+                    Today: "今日信息",
+                    Plan: "未来安排",
+                    Tracks: "长期状态",
+                    Sources: "项目来源",
+                  }[p]
+                }
               </small>
             </button>
           ))}
@@ -156,9 +170,10 @@ export function WorkbenchView() {
           <p className="muted">
             {
               {
-                Today: "看清今天，专注眼前。",
+                Today: "看见变化，再决定关注什么。",
                 Plan: "为未来留出清楚的位置。",
                 Tracks: "长期在推进什么，现在到了哪里。",
+                Sources: "让真实工作进入你的工作台。",
               }[page]
             }
           </p>
@@ -177,6 +192,15 @@ export function WorkbenchView() {
           <p>正在读取本地数据…</p>
         ) : (
           <>
+            {(page === "Today" || page === "Sources") && (
+              <ProjectOverview
+                sources={projects}
+                tracks={state.tracks}
+                compact={page === "Today"}
+                onChanged={refresh}
+                onOpenSources={() => setPage("Sources")}
+              />
+            )}
             {page === "Today" && (
               <>
                 <section
@@ -293,6 +317,25 @@ export function WorkbenchView() {
                             </div>
                           ))}
                         </dl>
+                        {projects
+                          .filter((s) => s.trackId === t.id)
+                          .map((s) => (
+                            <div className="track-project" key={s.id}>
+                              <span className="source-origin">
+                                来源 · {s.repository}
+                              </span>
+                              <p>
+                                {s.error
+                                  ? "来源读取未成功，保留已确认状态"
+                                  : s.latest?.disposition === "new"
+                                    ? "有新近况，等待你判断是否更新状态"
+                                    : "已连接项目，后续变化自动汇集"}
+                              </p>
+                              <button onClick={() => setPage("Sources")}>
+                                查看项目近况
+                              </button>
+                            </div>
+                          ))}
                         <p className="muted">
                           {statuses[t.status]} · 更新于{" "}
                           {new Date(t.updatedAt).toLocaleString()}

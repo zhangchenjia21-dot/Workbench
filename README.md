@@ -1,10 +1,18 @@
 # Personal Workbench
 
-PWB-002 · TA-1B Complete V0 implementation；保留已验收的 TA-1A / UAT-C1 行为。
+个人工作台：让项目近况进入 Today，再由你判断如何更新长期状态。保留已验收的 Today / Plan / Tracks。
 
 ## 一键启动
 
 Owner 直接双击仓库根目录的 **[启动 Workbench.cmd](启动%20Workbench.cmd)** 即可打开已打包的 Workbench，无需打开终端或寻找 exe。入口按自身位置查找打包目录，与当前工作目录无关；缺少打包应用时会显示中文提示。
+
+## 体验项目近况
+
+进入 Sources，连接一个 GitHub 公开仓库（可先选 Workbench 本身）。应用会汇集主线最近提交、开放 PR 和当前提交的 Actions 验证，之后每 30 分钟检查一次。Today 展示未读变化，查看依据可回到原始 GitHub 页面。
+
+选择“整理为 Track”或“查看状态建议”，对照并编辑文字，再确认写入新建或已有 Track。无需重复抄录项目事实；目标、阶段、日程和生命周期由你维护。已看过的同一近况不会重复提醒。失败时保留旧快照及检查时间。
+
+本轮最多连接 3 个公开仓库，无需令牌，不支持私有仓库。只读官方 API，不向 GitHub 上传内容。摘要基于有限事实规则，不分析代码语义，也不把 CI 成功当作产品验收通过。
 
 ## 维护者运行与打包
 
@@ -37,12 +45,12 @@ npm run test:packaged
 - 左下角可备份、恢复。备份请使用新文件名；恢复前有确认，并自动保存当前数据的安全快照。
 - 关闭窗口隐藏到托盘；点击托盘图标或“打开 Workbench”恢复。托盘“退出 Workbench”真正退出。
 
-数据库位于 Electron 的 per-user `userData/personal-state.sqlite`（Windows 通常为 `%APPDATA%/personal-workbench/`）；安全快照在同目录的 `safety/`。首次启动为空库。已有 TA-1A v1/v2 数据库自动经事务升级到 v3，升级前生成 safety 快照；不需要删除或重建 Owner 数据。测试只在独立临时目录创建虚构数据。
+数据库位于 Electron 的 per-user `userData/personal-state.sqlite`（Windows 通常为 `%APPDATA%/personal-workbench/`）；安全快照在同目录的 `safety/`。首次启动为空库。已有 v1/v2/v3 数据库自动经事务升级到 v4（增量保存项目来源与快照，既有身份不变），升级前生成 safety 快照；不需要删除或重建 Owner 数据。测试只在独立临时目录创建虚构数据。
 
 自动化打包验证覆盖普通 UI、IPC、SQLite、重启和真实托盘处理函数；原生文件选择器在测试中替换返回值。`evidence/packaged.json` 与 TA-1A / Complete V0 页面截图记录结果。实际 Owner Complete V0 UAT 由 05 后续组织，程序触发托盘事件不能替代真实鼠标体验。
 
 ## 范围与权威
 
-本轮仅实现 frozen TA-1B；任务及验收见 `docs/tasks/PWB-002/TASK.md`。不提供“这一次及以后”、AI/sync、Milestones、插件或完成统计等 Deferred 能力。Product/Route/Architecture 权威仍属于 Vibe-Coding 仓库，不在本仓库另建替代定义。
+本轮基于 Owner Autonomous Productization 授权。产品选择与 contract 边界见 `docs/productization/产品选择.md`，完成情况见 `docs/productization/COMPLETION.md`。Electron、SQLite canonical ownership、稳定身份和安全备份恢复契约保持不变。原 PWB-001 / 002 / 003 的任务与证据保留在 `docs/tasks/`。
 
-实现结构和恢复失败边界见 `docs/tasks/PWB-001/实现说明.md`。本轮状态与失败边界见 `docs/tasks/PWB-002/状态与失败矩阵.md`。工程就绪不等于 TA-1B / Complete V0 Product PASS，也不授权 TA-2。
+未增加私有仓库认证、ChatGPT 网页集成、同步写回、通用 Agent/Plugin 平台或其它无实际 consumer 的能力。工程验证与独立产品验收分开，由 05 做 Independent Review + Product Reality Review。

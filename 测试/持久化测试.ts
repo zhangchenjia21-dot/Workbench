@@ -1,3 +1,4 @@
+import "./项目近况测试";
 import "./可靠性测试";
 import { test } from "node:test";
 import assert from "node:assert/strict";

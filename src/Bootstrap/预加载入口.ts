@@ -1,6 +1,17 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type { DesktopAPI } from "../桌面界面/L3_外交层/桌面公开契约";
 const api: DesktopAPI = {
+  projectSources: () => ipcRenderer.invoke("projects:view"),
+  connectProject: (repository) =>
+    ipcRenderer.invoke("projects:connect", repository),
+  disconnectProject: (id) => ipcRenderer.invoke("projects:disconnect", id),
+  refreshSource: (id) => ipcRenderer.invoke("projects:refresh", id),
+  seeProjectUpdate: (id) => ipcRenderer.invoke("projects:seen", id),
+  proposeProjectUpdate: (id, track) =>
+    ipcRenderer.invoke("projects:propose", id, track),
+  acceptProjectUpdate: (proposal) =>
+    ipcRenderer.invoke("projects:accept", proposal),
+  openGitHub: (url) => ipcRenderer.invoke("projects:open", url),
   saveSeries: (id, draft, clear) =>
     ipcRenderer.invoke("state:series", id, draft, clear),
   saveException: (id, key, value) =>

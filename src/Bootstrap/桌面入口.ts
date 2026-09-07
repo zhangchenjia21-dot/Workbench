@@ -6,6 +6,7 @@ import {
   nativeImage,
   ipcMain,
   dialog,
+  shell,
 } from "electron";
 import { join } from "node:path";
 import {
@@ -18,6 +19,7 @@ let mainWindow: BrowserWindow;
 let tray: Tray;
 let state: Workbench;
 let exiting = false;
+let sourceTimer: ReturnType<typeof setInterval> | undefined;
 // 打包测试仅改变数据目录并暴露生命周期观察点，不替代真实业务或托盘处理函数。
 if (process.env.PWB_TEST_USER_DATA)
   app.setPath("userData", process.env.PWB_TEST_USER_DATA);
@@ -30,6 +32,7 @@ else {
     exiting = true;
   });
   app.on("will-quit", () => {
+    clearInterval(sourceTimer);
     state?.close();
     tray?.destroy();
   });
@@ -123,6 +126,25 @@ async function start(): Promise<void> {
         throw error;
       }
     });
+  handle("projects:view", () => state.projectSources());
+  handle("projects:connect", (repository) => state.connectProject(repository));
+  handle("projects:disconnect", (id) => state.disconnectProject(id));
+  handle("projects:refresh", (id) => state.refreshSource(id));
+  handle("projects:seen", (id) => state.seeProjectUpdate(id));
+  handle("projects:propose", (id, track) =>
+    state.proposeProjectUpdate(id, track),
+  );
+  handle("projects:accept", (proposal) => state.acceptProjectUpdate(proposal));
+  handle("projects:open", async (url: string) => {
+    if (
+      typeof url !== "string" ||
+      !/^https:\/\/github\.com\/[a-zA-Z0-9-]+\/[a-zA-Z0-9_.-]+(?:\/(?:commit\/[a-f0-9]{40}|pull\/[0-9]+|actions\/runs\/[0-9]+))?$/.test(
+        url,
+      )
+    )
+      throw Error("仅允许打开项目证据的 GitHub 链接");
+    await shell.openExternal(url);
+  });
   handle("state:series", (id, draft, clear) =>
     state.saveSeries(id, draft, clear),
   );
@@ -175,4 +197,12 @@ async function start(): Promise<void> {
   });
   await mainWindow.loadFile(join(__dirname, "index.html"));
   mainWindow.show();
+  // 后台只拉取 Owner 已连接的公开来源；恢复/退出后的在途结果由状态入口隔离。
+  const updateSources = () =>
+    void state
+      .refreshDueSources()
+      .catch((error) => console.error("来源检查失败", error));
+  updateSources();
+  sourceTimer = setInterval(updateSources, 5 * 60 * 1000);
+  sourceTimer.unref();
 }
