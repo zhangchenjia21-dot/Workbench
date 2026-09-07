@@ -1,0 +1,109 @@
+{
+  "mode": "deterministic network fixture, production UI/IPC/SQLite",
+  "startedAt": "2026-09-07T03:29:26.467Z",
+  "head": "5fba3cb0ad3016f5c2f259e668f97699f7c7c80a",
+  "userData": "C:\\Users\\MRVHREVO\\AppData\\Local\\Temp\\pwb-project-mo3io2",
+  "executable": "D:\\AI\\Projects\\Workbench\\out\\win-unpacked\\Workbench.exe",
+  "asarSha256": "1669af31b34575a9d5c791d276d67c19b167b507c998ffc20ef75993edd24d9b",
+  "checks": [
+    "Normal GUI connect -> evidence -> cancel leaves core unchanged -> editable explicit confirmation -> linked Track; Plan and lifecycle unchanged",
+    "Repeated refresh dedupes; new evidence does not overwrite Track; existing Track proposal edits same identity; seen stays seen; offline preserves evidence and disables adoption",
+    "Disconnect preserves canonical Track; native-picker-only backup/restore roundtrip and packaged restart preserve source, stable IDs, snapshots and canonical core"
+  ],
+  "firstSource": {
+    "id": "bfbc304a-4ab7-4f83-ab63-167d62209b57",
+    "repository": "zhangchenjia21-dot/workbench",
+    "trackId": null,
+    "checkedAt": "2026-09-07T03:29:27.675Z",
+    "error": null,
+    "latest": {
+      "id": "6bfaa9ee-9554-40d4-b7e9-13c87467c5d6",
+      "sourceId": "bfbc304a-4ab7-4f83-ab63-167d62209b57",
+      "fetchedAt": "2026-09-07T03:29:27.675Z",
+      "snapshot": {
+        "repositoryId": 1358719703,
+        "repository": "zhangchenjia21-dot/workbench",
+        "branch": "main",
+        "commits": [
+          {
+            "sha": "1111111111111111111111111111111111111111",
+            "title": "工作台主线变化 1",
+            "date": "2026-09-06T10:00:00Z"
+          }
+        ],
+        "pulls": [
+          {
+            "number": 27,
+            "title": "修复备份边界，等待审核",
+            "draft": false
+          }
+        ],
+        "morePulls": false,
+        "checksAvailable": true,
+        "checks": [
+          {
+            "id": 42,
+            "name": "Windows regression",
+            "status": "completed",
+            "conclusion": "failure"
+          }
+        ]
+      },
+      "disposition": "new"
+    }
+  },
+  "finalSource": {
+    "id": "bfbc304a-4ab7-4f83-ab63-167d62209b57",
+    "repository": "zhangchenjia21-dot/workbench",
+    "trackId": "efe24ceb-72d6-4add-a33f-2c254e0593f5",
+    "checkedAt": "2026-09-07T03:29:29.079Z",
+    "error": null,
+    "latest": {
+      "id": "7d5a8fb5-d88a-4abc-b9b6-af5ebead48c6",
+      "sourceId": "bfbc304a-4ab7-4f83-ab63-167d62209b57",
+      "fetchedAt": "2026-09-07T03:29:28.794Z",
+      "snapshot": {
+        "repositoryId": 1358719703,
+        "repository": "zhangchenjia21-dot/workbench",
+        "branch": "main",
+        "commits": [
+          {
+            "sha": "3333333333333333333333333333333333333333",
+            "title": "工作台主线变化 3",
+            "date": "2026-09-06T10:00:00Z"
+          }
+        ],
+        "pulls": [
+          {
+            "number": 27,
+            "title": "修复备份边界，等待审核",
+            "draft": false
+          }
+        ],
+        "morePulls": false,
+        "checksAvailable": true,
+        "checks": [
+          {
+            "id": 42,
+            "name": "Windows regression",
+            "status": "completed",
+            "conclusion": "failure"
+          }
+        ]
+      },
+      "disposition": "seen"
+    }
+  },
+  "finalTrack": {
+    "id": "efe24ceb-72d6-4add-a33f-2c254e0593f5",
+    "name": "Workbench 项目",
+    "goal": "",
+    "phase": "",
+    "realState": "已核对新的项目依据，继续处理验证失败。",
+    "direction": "先查看失败的验证记录，确认影响后再推进。",
+    "status": "Active",
+    "updatedAt": "2026-09-07T03:29:28.755Z"
+  },
+  "result": "ENGINEERING_VALIDATION_PASS",
+  "finishedAt": "2026-09-07T03:29:30.448Z"
+}

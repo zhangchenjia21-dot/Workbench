@@ -1,0 +1,122 @@
+{
+  "mode": "official GitHub API, no network fixture",
+  "startedAt": "2026-09-07T03:31:12.997Z",
+  "head": "7b39d4b668d92a3913d6352d7235b84f28849a10",
+  "userData": "C:\\Users\\MRVHREVO\\AppData\\Local\\Temp\\pwb-project-46oWlc",
+  "executable": "D:\\AI\\Projects\\Workbench\\out\\win-unpacked\\Workbench.exe",
+  "asarSha256": "1669af31b34575a9d5c791d276d67c19b167b507c998ffc20ef75993edd24d9b",
+  "checks": [
+    "Normal GUI connect -> evidence -> cancel leaves core unchanged -> editable explicit confirmation -> linked Track; Plan and lifecycle unchanged",
+    "Disconnect preserves canonical Track; native-picker-only backup/restore roundtrip and packaged restart preserve source, stable IDs, snapshots and canonical core"
+  ],
+  "firstSource": {
+    "id": "ee9c39c3-d4b1-48df-bfb3-95b892cdc410",
+    "repository": "zhangchenjia21-dot/workbench",
+    "trackId": null,
+    "checkedAt": "2026-09-07T03:31:16.100Z",
+    "error": null,
+    "latest": {
+      "id": "409d72a2-9ad0-499e-98e6-54a57e7e67c2",
+      "sourceId": "ee9c39c3-d4b1-48df-bfb3-95b892cdc410",
+      "fetchedAt": "2026-09-07T03:31:16.100Z",
+      "snapshot": {
+        "repositoryId": 1358719703,
+        "repository": "zhangchenjia21-dot/workbench",
+        "branch": "main",
+        "commits": [
+          {
+            "sha": "5fba3cb0ad3016f5c2f259e668f97699f7c7c80a",
+            "title": "PWB-003 record 05 independent reliability review",
+            "date": "2026-09-06T12:56:06Z"
+          },
+          {
+            "sha": "3e946ade25f1932f90a601314f96efdaccd79d5a",
+            "title": "PWB-003 complete audit and Windows CI evidence for 05 review",
+            "date": "2026-09-06T12:50:13Z"
+          },
+          {
+            "sha": "3b5cc29442e224e1f9d33e0cd3683e14684cb386",
+            "title": "PWB-003 validate full graph recovery and repeated packaged lifecycle",
+            "date": "2026-09-06T12:45:10Z"
+          },
+          {
+            "sha": "00a54f587159c9ef18d3444941f0fd67ff3584cf",
+            "title": "PWB-003 clear occurrence acknowledgement at deletion boundary",
+            "date": "2026-09-06T12:37:11Z"
+          },
+          {
+            "sha": "d4a0144f5b33e8004a19f3cb28f7b5478e450d5b",
+            "title": "PWB-003 audit stale acknowledgement before production fix",
+            "date": "2026-09-06T12:32:41Z"
+          }
+        ],
+        "pulls": [],
+        "morePulls": false,
+        "checksAvailable": true,
+        "checks": []
+      },
+      "disposition": "new"
+    }
+  },
+  "finalSource": {
+    "id": "ee9c39c3-d4b1-48df-bfb3-95b892cdc410",
+    "repository": "zhangchenjia21-dot/workbench",
+    "trackId": "06d672ee-7f4f-43d2-8b68-251163328af0",
+    "checkedAt": "2026-09-07T03:31:16.100Z",
+    "error": null,
+    "latest": {
+      "id": "409d72a2-9ad0-499e-98e6-54a57e7e67c2",
+      "sourceId": "ee9c39c3-d4b1-48df-bfb3-95b892cdc410",
+      "fetchedAt": "2026-09-07T03:31:16.100Z",
+      "snapshot": {
+        "repositoryId": 1358719703,
+        "repository": "zhangchenjia21-dot/workbench",
+        "branch": "main",
+        "commits": [
+          {
+            "sha": "5fba3cb0ad3016f5c2f259e668f97699f7c7c80a",
+            "title": "PWB-003 record 05 independent reliability review",
+            "date": "2026-09-06T12:56:06Z"
+          },
+          {
+            "sha": "3e946ade25f1932f90a601314f96efdaccd79d5a",
+            "title": "PWB-003 complete audit and Windows CI evidence for 05 review",
+            "date": "2026-09-06T12:50:13Z"
+          },
+          {
+            "sha": "3b5cc29442e224e1f9d33e0cd3683e14684cb386",
+            "title": "PWB-003 validate full graph recovery and repeated packaged lifecycle",
+            "date": "2026-09-06T12:45:10Z"
+          },
+          {
+            "sha": "00a54f587159c9ef18d3444941f0fd67ff3584cf",
+            "title": "PWB-003 clear occurrence acknowledgement at deletion boundary",
+            "date": "2026-09-06T12:37:11Z"
+          },
+          {
+            "sha": "d4a0144f5b33e8004a19f3cb28f7b5478e450d5b",
+            "title": "PWB-003 audit stale acknowledgement before production fix",
+            "date": "2026-09-06T12:32:41Z"
+          }
+        ],
+        "pulls": [],
+        "morePulls": false,
+        "checksAvailable": true,
+        "checks": []
+      },
+      "disposition": "applied"
+    }
+  },
+  "finalTrack": {
+    "id": "06d672ee-7f4f-43d2-8b68-251163328af0",
+    "name": "Workbench 项目",
+    "goal": "",
+    "phase": "",
+    "realState": "zhangchenjia21-dot/workbench · main\n最近提交：PWB-003 record 05 independent reliability review（5fba3cb）\n当前提交尚未找到验证记录。开放 PR：0 个，其中 0 个非草稿。",
+    "direction": "结合项目证据，继续独立审核与实际体验验证。",
+    "status": "Active",
+    "updatedAt": "2026-09-07T03:31:17.229Z"
+  },
+  "result": "ENGINEERING_VALIDATION_PASS",
+  "finishedAt": "2026-09-07T03:31:18.849Z"
+}
