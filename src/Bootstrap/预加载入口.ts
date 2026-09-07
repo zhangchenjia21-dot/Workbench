@@ -1,6 +1,8 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type { DesktopAPI } from "../桌面界面/L3_外交层/桌面公开契约";
 const api: DesktopAPI = {
+  githubStatus: () => ipcRenderer.invoke("github:status"),
+  loginGitHub: () => ipcRenderer.invoke("github:login"),
   projectSources: () => ipcRenderer.invoke("projects:view"),
   connectProject: (repository) =>
     ipcRenderer.invoke("projects:connect", repository),

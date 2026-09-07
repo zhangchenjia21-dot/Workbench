@@ -28,7 +28,9 @@ export function ProjectOverview({
   const [busy, setBusy] = useState<string>(),
     [error, setError] = useState("");
   const visible = compact
-    ? sources.filter((s) => !s.latest || s.latest.disposition === "new" || s.error)
+    ? sources.filter(
+        (s) => !s.latest || s.latest.disposition === "new" || s.error,
+      )
     : sources;
   async function action(id: string, work: () => Promise<unknown>) {
     setBusy(id);
@@ -62,6 +64,7 @@ export function ProjectOverview({
           {compact ? "管理项目来源" : "连接 GitHub 仓库"}
         </button>
       </div>
+      {!compact && <GitHubLogin disabled={!!busy} />}
       {!sources.length ? (
         <div className="source-onboarding">
           <h3>不用再抄一遍项目进度。</h3>
@@ -73,14 +76,14 @@ export function ProjectOverview({
             连接第一个项目
           </button>
           <p className="muted">
-            先支持公开仓库。只读取项目信息，不向 GitHub 写入内容。
+            支持公开及有权限的私有仓库。只读取项目信息，不向 GitHub 写入内容。
           </p>
         </div>
       ) : (
         <p className="muted">
           {compact
             ? "外部变化先成为近况，不会自动改写你的长期状态。"
-            : "每 30 分钟自动检查 · 最多 3 个公开仓库 · 断开来源会保留你的 Track"}
+            : "每 30 分钟自动检查 · 最多 3 个仓库 · 断开来源会保留你的 Track"}
         </p>
       )}
       {!!sources.length && !visible.length && (
@@ -109,7 +112,8 @@ export function ProjectOverview({
               <div className="section-heading">
                 <div>
                   <span className="source-origin">
-                    GITHUB · {track ? `关联 ${track.name}` : "尚未关联 Track"}
+                    GITHUB{snapshot?.private ? " · 私有" : ""} ·{" "}
+                    {track ? `关联 ${track.name}` : "尚未关联 Track"}
                   </span>
                   <h3>{source.repository}</h3>
                 </div>
@@ -327,6 +331,72 @@ function useModal() {
   }, []);
   return ref;
 }
+/** 仅显示账号信息；凭据获取与浏览器授权留在主进程和 Windows GCM。 */
+function GitHubLogin({ disabled }: { disabled: boolean }) {
+  const [status, setStatus] = useState<{
+      accounts: string[];
+      error: string | null;
+    }>(),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  useEffect(() => {
+    let active = true;
+    window.workbench
+      .githubStatus()
+      .then((s) => {
+        if (active) setStatus(s);
+      })
+      .catch(() => {
+        if (active) setError("读取登录状态失败，请重试。");
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+  return (
+    <section className="github-login" aria-label="GitHub 登录">
+      <p>
+        {status?.accounts.length
+          ? `Windows 中已保存账号：${status.accounts.join("、")}`
+          : "私有仓库需要 GitHub 登录；公开仓库可直接连接。"}
+      </p>
+      {status?.error && <p className="muted">{status.error}</p>}
+      <button
+        type="button"
+        disabled={busy || disabled}
+        onClick={async () => {
+          setBusy(true);
+          setError("");
+          try {
+            await window.workbench.loginGitHub();
+            setStatus(await window.workbench.githubStatus());
+          } catch {
+            setError(
+              "登录未完成，请确认浏览器授权，或检查 Git for Windows（含 Git Credential Manager）是否已安装。",
+            );
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        {busy
+          ? "请在浏览器中完成授权…"
+          : status?.accounts.length
+            ? "重新登录 GitHub"
+            : "登录 GitHub"}
+      </button>
+      <p className="muted">
+        使用 Git for Windows 的官方浏览器登录。Workbench 不保存或显示
+        Token，不更改 GitHub 内容。
+      </p>
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
+    </section>
+  );
+}
 function ConnectProject({
   onClose,
   onConnect,
@@ -360,9 +430,10 @@ function ConnectProject({
     >
       <form onSubmit={(e) => void submit(e)}>
         <h2>连接一个正在推进的项目</h2>
-        <p>只需仓库地址。之后自动检查，不需要重复录入进度。</p>
+        <p>填写仓库地址；私有仓库会复用 Windows 中已保存的 GitHub 登录。</p>
+        <GitHubLogin disabled={busy} />
         <label>
-          GitHub 公开仓库
+          GitHub 仓库（公开或私有）
           <input
             autoFocus
             required
@@ -381,8 +452,8 @@ function ConnectProject({
           先看看 Workbench 项目
         </button>
         <p className="muted">
-          通过官方 API 读取最近提交、开放 PR 和
-          Actions。当前不支持私有仓库，不需要提供密码或令牌。
+          通过官方 API 读取最近提交、开放 PR 和 Actions。私有内容保存在本机
+          SQLite，也会包含在你的数据备份中。
         </p>
         {error && (
           <p role="alert" className="error">

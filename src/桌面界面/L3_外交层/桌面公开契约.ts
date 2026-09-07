@@ -12,6 +12,9 @@ import type {
 } from "../../个人状态/L3_外交层/状态公开接口";
 /** preload 白名单 API；返回值为 IPC 副本，业务写入只由主进程确认，不暴露 SQL 或任意路径访问。 */
 export interface DesktopAPI {
+  /** Windows 管理的账号列表不含 Token；登录由官方 GCM 浏览器流程完成。 */
+  githubStatus(): Promise<{ accounts: string[]; error: string | null }>;
+  loginGitHub(): Promise<void>;
   /** 只读 GitHub 证据；采用提案须显式确认，冲突/恢复后的陈旧结果拒绝。 */
   projectSources(): Promise<ProjectSource[]>;
   connectProject(repository: string): Promise<string>;

@@ -6,8 +6,15 @@ import { tmpdir } from "node:os";
 import { resolve, join } from "node:path";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-const real = process.argv.includes("--real");
-const output = resolve("evidence", real ? "project-real" : "project-fixture");
+const privateRun = process.argv.includes("--private");
+const real = privateRun || process.argv.includes("--real");
+const privateRepository = process.env.PWB_PRIVATE_REPOSITORY;
+if (privateRun && !privateRepository)
+  throw Error("Set PWB_PRIVATE_REPOSITORY for local private validation");
+const output = resolve(
+  "evidence",
+  privateRun ? "project-private" : real ? "project-real" : "project-fixture",
+);
 mkdirSync(output, { recursive: true });
 const userData = mkdtempSync(join(tmpdir(), "pwb-project-"));
 const executable = resolve("out/win-unpacked/Workbench.exe");
@@ -26,7 +33,11 @@ const proof = {
 };
 let app, page;
 async function launch() {
-  const env = { ...process.env, PWB_TEST_USER_DATA: userData };
+  const env = {
+    ...process.env,
+    PWB_TEST_USER_DATA: userData,
+    PWB_TEST_GITHUB_AUTH: privateRun ? "real" : "disabled",
+  };
   delete env.ELECTRON_RUN_AS_NODE;
   app = await electron.launch({ executablePath: executable, env });
   page = await app.firstWindow();
@@ -95,7 +106,12 @@ try {
   await page
     .getByRole("button", { name: "连接第一个项目", exact: true })
     .click();
-  await page.getByRole("button", { name: "先看看 Workbench 项目" }).click();
+  if (privateRun)
+    await page
+      .getByLabel("GitHub 仓库（公开或私有）", { exact: true })
+      .fill(privateRepository);
+  else
+    await page.getByRole("button", { name: "先看看 Workbench 项目" }).click();
   await page.getByRole("button", { name: "连接并获取近况" }).click();
   await page
     .getByRole("button", { name: "整理为 Track", exact: true })
@@ -104,7 +120,10 @@ try {
   assert.ok(initial.latest?.snapshot.commits[0].sha);
   assert.equal(initial.error, null);
   assert.deepEqual(await view(), empty);
-  proof.firstSource = initial;
+  if (privateRun) {
+    assert.equal(initial.latest.snapshot.private, true);
+    proof.privateRepositoryRead = true;
+  } else proof.firstSource = initial;
   await page.screenshot({ path: join(output, "today.png"), fullPage: true });
   await page.getByText("查看依据 · 最近提交与验证", { exact: true }).click();
   await page.screenshot({ path: join(output, "evidence.png"), fullPage: true });
@@ -244,20 +263,26 @@ try {
   proof.checks.push(
     "Disconnect preserves canonical Track; native-picker-only backup/restore roundtrip and packaged restart preserve source, stable IDs, snapshots and canonical core",
   );
-  proof.finalSource = savedSources[0];
-  proof.finalTrack = savedCore.tracks[0];
+  if (!privateRun) {
+    proof.finalSource = savedSources[0];
+    proof.finalTrack = savedCore.tracks[0];
+  } else proof.privateContentRedacted = true;
   proof.result = "ENGINEERING_VALIDATION_PASS";
   await quit();
 } catch (error) {
   proof.result = "FAIL";
-  proof.error = String(error);
+  proof.error = privateRun
+    ? "Private validation failed; see local screenshot (do not publish)"
+    : String(error);
   if (app) {
     await page
       .screenshot({ path: join(output, "failure.png") })
       .catch(() => {});
     await app.close();
   }
-  throw error;
+  throw privateRun
+    ? Error("Private validation failed; details remain local")
+    : error;
 } finally {
   proof.finishedAt = new Date().toISOString();
   writeFileSync(join(output, "proof.json"), JSON.stringify(proof, null, 2));

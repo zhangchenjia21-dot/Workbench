@@ -1,3 +1,4 @@
+import { createGitHubConnection } from "../个人状态/L3_外交层/GitHub登录接口";
 import {
   app,
   BrowserWindow,
@@ -55,7 +56,14 @@ function exitApp(): void {
   app.quit();
 }
 async function start(): Promise<void> {
-  state = openWorkbench(join(app.getPath("userData"), "personal-state.sqlite"));
+  const github = createGitHubConnection(
+    !process.env.PWB_TEST_USER_DATA ||
+      process.env.PWB_TEST_GITHUB_AUTH === "real",
+  );
+  state = openWorkbench(
+    join(app.getPath("userData"), "personal-state.sqlite"),
+    github.read,
+  );
   mainWindow = new BrowserWindow({
     width: 1180,
     height: 820,
@@ -126,6 +134,8 @@ async function start(): Promise<void> {
         throw error;
       }
     });
+  handle("github:status", () => github.status());
+  handle("github:login", () => github.login());
   handle("projects:view", () => state.projectSources());
   handle("projects:connect", (repository) => state.connectProject(repository));
   handle("projects:disconnect", (id) => state.disconnectProject(id));

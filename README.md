@@ -8,11 +8,11 @@ Owner 直接双击仓库根目录的 **[启动 Workbench.cmd](启动%20Workbench
 
 ## 体验项目近况
 
-进入 Sources，连接一个 GitHub 公开仓库（可先选 Workbench 本身）。应用会汇集主线最近提交、开放 PR 和当前提交的 Actions 验证，之后每 30 分钟检查一次。Today 展示未读变化，查看依据可回到原始 GitHub 页面。
+进入 Sources，连接一个 GitHub 仓库（公开或当前账号有权限的私有仓库）。应用会汇集主线最近提交、开放 PR 和当前提交的 Actions 验证，之后每 30 分钟检查一次。Today 展示未读变化，查看依据可回到原始 GitHub 页面。
 
 选择“整理为 Track”或“查看状态建议”，对照并编辑文字，再确认写入新建或已有 Track。无需重复抄录项目事实；目标、阶段、日程和生命周期由你维护。已看过的同一近况不会重复提醒。失败时保留旧快照及检查时间。
 
-本轮最多连接 3 个公开仓库，无需令牌，不支持私有仓库。只读官方 API，不向 GitHub 上传内容。摘要基于有限事实规则，不分析代码语义，也不把 CI 成功当作产品验收通过。
+最多连接 3 个仓库。私有仓库复用 Git for Windows / Git Credential Manager 在 Windows 保存的 GitHub 登录；没有登录或登录过期时，可在 Sources 或连接弹窗点击“登录 GitHub / 重新登录 GitHub”，在官方浏览器页面完成授权。无需在 Workbench 中粘贴 Token；Workbench 不保存凭据到 SQLite、界面或备份。只读官方 API，不向 GitHub 上传内容。私有仓库的事实内容会进入本地数据库及其备份，请按私人数据保存备份。摘要基于有限事实规则，不分析代码语义，也不把 CI 成功当作产品验收通过。
 
 ## 维护者运行与打包
 
@@ -53,4 +53,4 @@ npm run test:packaged
 
 本轮基于 Owner Autonomous Productization 授权。产品选择与 contract 边界见 `docs/productization/产品选择.md`，完成情况见 `docs/productization/COMPLETION.md`。Electron、SQLite canonical ownership、稳定身份和安全备份恢复契约保持不变。原 PWB-001 / 002 / 003 的任务与证据保留在 `docs/tasks/`。
 
-未增加私有仓库认证、ChatGPT 网页集成、同步写回、通用 Agent/Plugin 平台或其它无实际 consumer 的能力。工程验证与独立产品验收分开，由 05 做 Independent Review + Product Reality Review。
+私有仓库登录修订见 `docs/productization/私有仓库连接修订.md`。未增加 ChatGPT 网页集成、同步写回、通用 Agent/Plugin 平台或其它无实际 consumer 的能力。工程验证与独立产品验收分开，由 05 做 Independent Review + Product Reality Review。

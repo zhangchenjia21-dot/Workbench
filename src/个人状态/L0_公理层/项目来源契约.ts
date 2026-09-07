@@ -3,6 +3,8 @@ import { textField, type Track } from "./状态契约";
 /** 一次有限读取的外部事实；repositoryId 检测同名仓库替换，checks 只属于首条提交。 */
 export interface ProjectSnapshot {
   repositoryId: number;
+  /** 旧快照未记录可见性；不能把缺失值推断成公开。 */
+  private?: boolean;
   repository: string;
   branch: string;
   commits: { sha: string; title: string; date: string }[];
@@ -64,6 +66,7 @@ const bounded = (v: unknown, max = 500) =>
 export function validateProjectSnapshot(s: ProjectSnapshot): void {
   if (
     !s ||
+    (s.private !== undefined && typeof s.private !== "boolean") ||
     !Number.isSafeInteger(s.repositoryId) ||
     s.repositoryId <= 0 ||
     repositoryName(s.repository) !== s.repository ||

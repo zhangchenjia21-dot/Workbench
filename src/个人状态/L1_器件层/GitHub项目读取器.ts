@@ -23,10 +23,11 @@ function num(v: unknown): number {
 }
 const title = (v: unknown) =>
   str(v).split(/\r?\n/)[0].slice(0, 500) || "（无标题）";
-/** 固定官方只读 API；无 token/本地文件上传；超时、重定向和超大响应明确失败。 */
+/** 固定官方只读 API；凭据只发给 api.github.com，不上传本地文件；超时、重定向和超大响应明确失败。 */
 export async function readGitHubProject(
   input: string,
   request: typeof fetch = fetch,
+  token?: string,
 ): Promise<ProjectSnapshot> {
   const repository = repositoryName(input),
     base = `https://api.github.com/repos/${repository}`;
@@ -36,16 +37,24 @@ export async function readGitHubProject(
         Accept: "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
         "User-Agent": "Personal-Workbench",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       redirect: "error",
       signal: AbortSignal.timeout(15000),
     });
-    if (optional && response.status === 404) return null;
+    if (optional && (response.status === 404 || response.status === 403))
+      return null;
     if (!response.ok) {
+      if (response.status === 401)
+        throw Error("GitHub 登录已失效，请在连接项目中重新登录。");
       if (response.status === 403 || response.status === 429)
-        throw Error("GitHub 暂时限制请求，请稍后刷新；已保存的近况不受影响。");
+        throw Error(
+          "GitHub 权限不足或暂时限制请求，请检查仓库授权或稍后刷新；已保存的近况不受影响。",
+        );
       if (response.status === 404)
-        throw Error("找不到这个公开仓库；当前版本不连接私有仓库。");
+        throw Error(
+          "找不到仓库或当前账号没有访问权限。请核对 owner/repo，并在连接项目中登录有权限的 GitHub 账号。",
+        );
       throw Error(`GitHub 读取失败（${response.status}），稍后可重试。`);
     }
     const reader = response.body?.getReader();
@@ -97,16 +106,15 @@ export async function readGitHubProject(
         });
   const result: ProjectSnapshot = {
     repositoryId: num(repo.id),
+    private: repo.private === true,
     repository,
     branch,
     commits,
-    pulls: pulls
-      .slice(0, 20)
-      .map((p) => ({
-        number: num(p.number),
-        title: title(p.title),
-        draft: p.draft === true,
-      })),
+    pulls: pulls.slice(0, 20).map((p) => ({
+      number: num(p.number),
+      title: title(p.title),
+      draft: p.draft === true,
+    })),
     morePulls: pulls.length > 20,
     checksAvailable: rawRuns !== null,
     checks: runs.map((r) => ({
